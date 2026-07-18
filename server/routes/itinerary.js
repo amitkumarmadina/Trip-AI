@@ -25,12 +25,11 @@ router.post("/itinerary", async (req, res) => {
   try {
     const data = InputSchema.parse(req.body);
 
-    const key = process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.trim() : "";
+    const groqKey = process.env.GROQ_API_KEY ? process.env.GROQ_API_KEY.trim() : "";
+    const geminiKey = process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.trim() : "";
     let itineraryText = "";
 
-    if (key) {
-      console.log("Calling Google Gemini API...");
-      const prompt = `You are an expert travel planner. Create a detailed, personalized travel itinerary.
+    const prompt = `You are an expert travel planner. Create a detailed, personalized travel itinerary.
 
 TRIP DETAILS:
 - Departing from: ${data.from}
@@ -81,8 +80,43 @@ Grouped under: Documents, Clothing, Electronics, Medicines, Accessories, Essenti
 
 Keep it practical, specific, and inspiring. Use emojis sparingly in headings.`;
 
+    if (groqKey) {
+      console.log("Calling Groq API...");
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${groqKey}`,
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an expert travel planner who writes detailed, well-formatted Markdown itineraries.",
+            },
+            { role: "user", content: prompt },
+          ],
+          temperature: 0.3,
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Groq API Error: ${response.status} - ${errText}`);
+      }
+
+      const resJson = await response.json();
+      itineraryText = resJson.choices?.[0]?.message?.content || "";
+
+      if (!itineraryText) {
+        throw new Error("Empty response received from Groq API");
+      }
+    } else if (geminiKey) {
+      console.log("Calling Google Gemini API...");
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
         {
           method: "POST",
           headers: {
