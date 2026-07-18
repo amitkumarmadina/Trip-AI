@@ -21,7 +21,7 @@ import type { SavedTrip } from "@/lib/trip-types";
 
 export const Route = createFileRoute("/itinerary")({
   head: () => ({
-    meta: [{ title: "Your itinerary — Voyagr" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Your itinerary — Trip AI" }, { name: "robots", content: "noindex" }],
   }),
   component: ItineraryPage,
 });
@@ -110,7 +110,7 @@ function ItineraryPage() {
 
   if (!trip) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background text-foreground">
         <Navbar />
         <div className="mx-auto max-w-2xl px-6 py-24 text-center text-muted-foreground">
           Loading itinerary…
@@ -169,7 +169,10 @@ function ItineraryPage() {
   const share = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: "My Voyagr itinerary", text: trip.itinerary.slice(0, 500) });
+        await navigator.share({
+          title: "My Trip AI itinerary",
+          text: trip.itinerary.slice(0, 500),
+        });
       } catch (err) {
         console.warn("Share failed:", err);
       }
@@ -179,58 +182,85 @@ function ItineraryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background text-foreground overflow-hidden">
+      {/* Background Orbs */}
+      <div className="glow-orb glow-orb-primary top-[-50px] right-[-50px] size-[350px] sm:size-[500px]" />
+      <div className="glow-orb glow-orb-secondary bottom-[-100px] left-[-100px] size-[300px] sm:size-[450px]" />
+
       <Navbar />
       <div className="mx-auto max-w-4xl px-6 py-10">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="size-4" /> New trip
         </Link>
 
-        <div className="mt-6 rounded-3xl border border-border/60 bg-[image:var(--gradient-hero)] p-8 text-primary-foreground shadow-[var(--shadow-glow)]">
-          <div className="text-sm uppercase tracking-widest opacity-80">Your itinerary</div>
-          <h1 className="mt-2 text-3xl font-semibold sm:text-4xl">
-            {trip.input.from} → {trip.input.destination || "AI-suggested"}
+        {/* Hero details container */}
+        <div className="mt-6 rounded-3xl border border-white/5 bg-[image:var(--gradient-hero)] p-6 sm:p-8 text-white shadow-glow relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+            <MapPin className="size-36" />
+          </div>
+          <div className="text-xs font-bold uppercase tracking-widest text-secondary-foreground bg-white/15 px-3 py-1 rounded-full w-fit">
+            Your custom itinerary
+          </div>
+          <h1 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">
+            {trip.input.from} → {trip.input.destination || "AI-suggested destination"}
           </h1>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid gap-4 grid-cols-2 lg:grid-cols-4">
             {summary!.map(({ icon: Icon, label, value }) => (
-              <div key={label} className="rounded-2xl bg-white/15 p-4 backdrop-blur">
-                <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-80">
-                  <Icon className="size-3.5" /> {label}
+              <div
+                key={label}
+                className="rounded-2xl bg-white/10 p-4 border border-white/5 backdrop-blur-md"
+              >
+                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white/70">
+                  <Icon className="size-3.5 text-white/80" /> {label}
                 </div>
-                <div className="mt-1 truncate text-base font-semibold">{value}</div>
+                <div className="mt-1.5 truncate text-sm font-bold">{value}</div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-2 print:hidden">
+        {/* Action Controls */}
+        <div className="mt-6 flex flex-wrap gap-2.5 print:hidden">
           <Button
             onClick={toggleSave}
             variant={saved ? "secondary" : "default"}
-            className="rounded-full"
+            className="rounded-full font-bold h-11 px-5 bg-white/5 border border-white/10 hover:bg-white/10 text-foreground transition-all duration-300"
           >
             {saved ? (
-              <BookmarkCheck className="mr-1.5 size-4" />
+              <BookmarkCheck className="mr-1.5 size-4 text-primary" />
             ) : (
               <Bookmark className="mr-1.5 size-4" />
             )}
-            {saved ? "Saved" : "Save trip"}
+            {saved ? "Saved to database" : "Save trip"}
           </Button>
-          <Button onClick={copy} variant="outline" className="rounded-full">
+          <Button
+            onClick={copy}
+            variant="outline"
+            className="rounded-full font-bold h-11 px-5 bg-transparent border-white/10 hover:bg-white/5 text-foreground transition-all duration-300"
+          >
             <Copy className="mr-1.5 size-4" /> Copy
           </Button>
-          <Button onClick={share} variant="outline" className="rounded-full">
+          <Button
+            onClick={share}
+            variant="outline"
+            className="rounded-full font-bold h-11 px-5 bg-transparent border-white/10 hover:bg-white/5 text-foreground transition-all duration-300"
+          >
             <Share2 className="mr-1.5 size-4" /> Share
           </Button>
-          <Button onClick={() => window.print()} variant="outline" className="rounded-full">
+          <Button
+            onClick={() => window.print()}
+            variant="outline"
+            className="rounded-full font-bold h-11 px-5 bg-transparent border-white/10 hover:bg-white/5 text-foreground transition-all duration-300"
+          >
             <Printer className="mr-1.5 size-4" /> Print
           </Button>
         </div>
 
-        <article className="prose prose-slate mt-8 max-w-none rounded-3xl border border-border/60 bg-card p-8 shadow-[var(--shadow-soft)] prose-headings:tracking-tight prose-h2:mt-8 prose-h2:border-b prose-h2:border-border prose-h2:pb-2 prose-a:text-primary prose-table:text-sm">
+        {/* Content markdown paper */}
+        <article className="prose prose-invert prose-indigo mt-8 max-w-none rounded-3xl border border-white/5 bg-card/45 p-6 sm:p-10 shadow-2xl backdrop-blur-xl prose-headings:tracking-tight prose-h2:mt-8 prose-h2:border-b prose-h2:border-white/5 prose-h2:pb-3 prose-a:text-primary prose-table:text-sm prose-th:text-muted-foreground prose-td:text-foreground/90">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{trip.itinerary}</ReactMarkdown>
         </article>
       </div>

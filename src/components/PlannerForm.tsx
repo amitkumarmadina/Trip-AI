@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Loader2, Sparkles, MapPin, Calendar, Wallet, Users } from "lucide-react";
+import { Loader2, Sparkles, MapPin, Calendar, Wallet, Users, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -105,62 +105,83 @@ export function PlannerForm() {
     <form
       id="planner"
       onSubmit={onSubmit}
-      className="rounded-3xl border border-border/60 bg-card/80 p-6 shadow-[var(--shadow-glow)] backdrop-blur-xl sm:p-8"
+      className="glass-panel rounded-3xl p-6 shadow-2xl backdrop-blur-2xl sm:p-8 border-white/5 relative overflow-hidden"
     >
+      {/* Decorative neon accent strip */}
+      <div className="absolute top-0 left-0 right-0 h-1.5 bg-[image:var(--gradient-hero)]" />
+
       <div className="mb-6 flex items-center gap-2">
-        <Sparkles className="size-5 text-primary" />
-        <h2 className="text-xl font-semibold tracking-tight">Design your trip</h2>
+        <div className="grid size-9 place-items-center rounded-xl bg-primary/15 text-primary border border-primary/20 shadow-glow">
+          <Sparkles className="size-4.5 animate-pulse" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold tracking-tight text-foreground">Design your trip</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Let our AI build a tailor-made schedule
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Departure city" icon={<MapPin className="size-4" />}>
+        <Field label="Departure city" icon={<MapPin className="size-4 text-muted-foreground" />}>
           <Input
             value={form.from}
             onChange={(e) => update("from", e.target.value)}
             placeholder="e.g. New York"
             maxLength={100}
+            className="h-11 rounded-xl bg-white/5 border-white/10 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary/50"
           />
         </Field>
-        <Field label="Destination (optional)" icon={<MapPin className="size-4" />}>
+        <Field
+          label="Destination (optional)"
+          icon={<MapPin className="size-4 text-muted-foreground" />}
+        >
           <Input
             value={form.destination}
             onChange={(e) => update("destination", e.target.value)}
             placeholder="Surprise me…"
             maxLength={100}
+            className="h-11 rounded-xl bg-white/5 border-white/10 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary/50"
           />
         </Field>
 
-        <Field label="Start date" icon={<Calendar className="size-4" />}>
+        <Field label="Start date" icon={<Calendar className="size-4 text-muted-foreground" />}>
           <Input
             type="date"
             value={form.startDate}
             onChange={(e) => update("startDate", e.target.value)}
+            className="h-11 rounded-xl bg-white/5 border-white/10 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary/50 [color-scheme:dark]"
           />
         </Field>
-        <Field label="End date" icon={<Calendar className="size-4" />}>
+        <Field label="End date" icon={<Calendar className="size-4 text-muted-foreground" />}>
           <Input
             type="date"
             value={form.endDate}
             onChange={(e) => update("endDate", e.target.value)}
+            className="h-11 rounded-xl bg-white/5 border-white/10 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary/50 [color-scheme:dark]"
           />
         </Field>
 
-        <Field label={`Budget (${form.currency})`} icon={<Wallet className="size-4" />}>
+        <Field
+          label={`Budget (${form.currency})`}
+          icon={<Wallet className="size-4 text-muted-foreground" />}
+        >
           <Input
             type="number"
             min={0}
             value={form.budget}
             onChange={(e) => update("budget", Number(e.target.value))}
+            className="h-11 rounded-xl bg-white/5 border-white/10 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary/50"
           />
         </Field>
         <Field label="Currency">
           <Select value={form.currency} onValueChange={(v) => update("currency", v)}>
-            <SelectTrigger>
+            <SelectTrigger className="h-11 rounded-xl bg-white/5 border-white/10 text-foreground focus:ring-primary/50">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-popover border-white/10 text-foreground">
               {CURRENCY_OPTIONS.map((c) => (
-                <SelectItem key={c} value={c}>
+                <SelectItem key={c} value={c} className="focus:bg-white/10 focus:text-foreground">
                   {c}
                 </SelectItem>
               ))}
@@ -168,13 +189,14 @@ export function PlannerForm() {
           </Select>
         </Field>
 
-        <Field label="Travelers" icon={<Users className="size-4" />}>
+        <Field label="Travelers" icon={<Users className="size-4 text-muted-foreground" />}>
           <Input
             type="number"
             min={1}
             max={50}
             value={form.travelers}
             onChange={(e) => update("travelers", Number(e.target.value))}
+            className="h-11 rounded-xl bg-white/5 border-white/10 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary/50"
           />
         </Field>
         <Field label="Days">
@@ -184,6 +206,7 @@ export function PlannerForm() {
             max={60}
             value={form.days}
             onChange={(e) => update("days", Number(e.target.value))}
+            className="h-11 rounded-xl bg-white/5 border-white/10 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary/50"
           />
         </Field>
 
@@ -192,12 +215,12 @@ export function PlannerForm() {
             value={form.style}
             onValueChange={(v) => update("style", v as TripInput["style"])}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-11 rounded-xl bg-white/5 border-white/10 text-foreground focus:ring-primary/50">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-popover border-white/10 text-foreground">
               {STYLE_OPTIONS.map((s) => (
-                <SelectItem key={s} value={s}>
+                <SelectItem key={s} value={s} className="focus:bg-white/10 focus:text-foreground">
                   {s}
                 </SelectItem>
               ))}
@@ -206,12 +229,12 @@ export function PlannerForm() {
         </Field>
         <Field label="Accommodation">
           <Select value={form.accommodation} onValueChange={(v) => update("accommodation", v)}>
-            <SelectTrigger>
+            <SelectTrigger className="h-11 rounded-xl bg-white/5 border-white/10 text-foreground focus:ring-primary/50">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-popover border-white/10 text-foreground">
               {ACCOMMODATION_OPTIONS.map((a) => (
-                <SelectItem key={a} value={a}>
+                <SelectItem key={a} value={a} className="focus:bg-white/10 focus:text-foreground">
                   {a}
                 </SelectItem>
               ))}
@@ -221,12 +244,12 @@ export function PlannerForm() {
 
         <Field label="Transport">
           <Select value={form.transport} onValueChange={(v) => update("transport", v)}>
-            <SelectTrigger>
+            <SelectTrigger className="h-11 rounded-xl bg-white/5 border-white/10 text-foreground focus:ring-primary/50">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-popover border-white/10 text-foreground">
               {TRANSPORT_OPTIONS.map((t) => (
-                <SelectItem key={t} value={t}>
+                <SelectItem key={t} value={t} className="focus:bg-white/10 focus:text-foreground">
                   {t}
                 </SelectItem>
               ))}
@@ -237,7 +260,7 @@ export function PlannerForm() {
       </div>
 
       <div className="mt-6">
-        <Label className="mb-3 block text-sm font-medium">Interests</Label>
+        <Label className="mb-3 block text-sm font-semibold text-foreground/80">Interests</Label>
         <div className="flex flex-wrap gap-2">
           {INTEREST_OPTIONS.map((i) => {
             const active = form.interests.includes(i);
@@ -247,10 +270,10 @@ export function PlannerForm() {
                 type="button"
                 onClick={() => toggleInterest(i)}
                 className={
-                  "rounded-full border px-4 py-1.5 text-sm transition-all " +
+                  "rounded-full border px-4 py-1.5 text-xs font-semibold tracking-wide transition-all duration-300 " +
                   (active
-                    ? "border-transparent bg-[image:var(--gradient-hero)] text-primary-foreground shadow-[var(--shadow-soft)]"
-                    : "border-border bg-background/60 text-muted-foreground hover:border-primary/40 hover:text-foreground")
+                    ? "border-transparent bg-[image:var(--gradient-hero)] text-white shadow-glow"
+                    : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/30 hover:text-foreground")
                 }
               >
                 {i}
@@ -261,13 +284,14 @@ export function PlannerForm() {
       </div>
 
       <div className="mt-6">
-        <Field label="Additional notes">
+        <Field label="Additional notes" icon={<Info className="size-4 text-muted-foreground" />}>
           <Textarea
             value={form.notes}
             onChange={(e) => update("notes", e.target.value)}
-            placeholder="Dietary needs, must-see places, pace preferences…"
+            placeholder="Dietary requirements, must-visit locations, pace preferences…"
             maxLength={1000}
             rows={3}
+            className="rounded-xl bg-white/5 border-white/10 text-foreground focus-visible:ring-primary/50 focus-visible:border-primary/50 resize-none"
           />
         </Field>
       </div>
@@ -276,12 +300,12 @@ export function PlannerForm() {
         type="submit"
         disabled={loading}
         size="lg"
-        className="mt-8 h-14 w-full rounded-2xl bg-[image:var(--gradient-hero)] text-base font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.01]"
+        className="mt-8 h-14 w-full rounded-xl bg-[image:var(--gradient-hero)] text-white font-bold shadow-glow hover:brightness-110 active:scale-[0.99] transition-all duration-300"
       >
         {loading ? (
           <>
             <Loader2 className="mr-2 size-5 animate-spin" />
-            Planning your dream vacation…
+            AI is analyzing details & creating itinerary…
           </>
         ) : (
           <>
@@ -305,7 +329,7 @@ function Field({
 }) {
   return (
     <div className="space-y-2">
-      <Label className="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
+      <Label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
         {icon}
         {label}
       </Label>

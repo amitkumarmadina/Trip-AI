@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Trash2, MapPin, Calendar, ArrowRight } from "lucide-react";
+import { Trash2, MapPin, Calendar, ArrowRight, Plane } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
 import { toast } from "sonner";
@@ -9,7 +9,7 @@ import type { SavedTrip } from "@/lib/trip-types";
 export const Route = createFileRoute("/saved")({
   head: () => ({
     meta: [
-      { title: "Saved trips — Voyagr" },
+      { title: "Saved trips — Trip AI" },
       { name: "description", content: "Your bookmarked AI-generated travel itineraries." },
     ],
   }),
@@ -65,54 +65,67 @@ function SavedPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background text-foreground overflow-hidden">
+      {/* Background Orbs */}
+      <div className="glow-orb glow-orb-secondary top-[-100px] left-[-50px] size-[350px] sm:size-[500px]" />
+      <div className="glow-orb glow-orb-primary bottom-[-100px] right-[-50px] size-[300px] sm:size-[450px]" />
+
       <Navbar />
-      <div className="mx-auto max-w-5xl px-6 py-12">
-        <h1 className="text-3xl font-semibold tracking-tight">Saved trips</h1>
-        <p className="mt-2 text-muted-foreground">
+      <div className="mx-auto max-w-5xl px-6 py-12 relative">
+        <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Saved trips</h1>
+        <p className="mt-2 text-muted-foreground font-medium">
           Your bookmarked itineraries, ready when you are.
         </p>
 
         {trips.length === 0 ? (
-          <div className="mt-12 rounded-3xl border border-dashed border-border p-12 text-center">
-            <div className="text-lg font-medium">No saved trips yet</div>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Plan a trip and hit “Save” to bookmark it here.
+          <div className="mt-12 rounded-3xl border border-dashed border-white/10 p-12 text-center bg-white/[0.01] backdrop-blur-md">
+            <div className="grid size-12 place-items-center rounded-2xl bg-white/5 text-muted-foreground border border-white/5 mx-auto mb-4">
+              <Plane className="size-6 -rotate-45" />
+            </div>
+            <div className="text-lg font-bold">No saved trips yet</div>
+            <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">
+              Plan a trip and save it to sync your travels here.
             </p>
-            <Button className="mt-6 rounded-full" onClick={() => navigate({ to: "/" })}>
+            <Button
+              className="mt-6 rounded-full font-bold px-6 bg-[image:var(--gradient-hero)] shadow-glow text-white hover:brightness-110"
+              onClick={() => navigate({ to: "/" })}
+            >
               Plan a trip
             </Button>
           </div>
         ) : (
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <div className="mt-8 grid gap-6 sm:grid-cols-2">
             {trips.map((t) => (
               <div
                 key={t.id}
-                className="rounded-2xl border border-border/60 bg-card p-5 shadow-[var(--shadow-soft)]"
+                className="glass-panel glass-panel-hover rounded-2xl p-5 shadow-xl transition-all duration-300 relative overflow-hidden"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
                       <MapPin className="size-3.5" /> {t.input.from} →{" "}
                       {t.input.destination || "AI-picked"}
                     </div>
-                    <div className="mt-1 text-lg font-semibold">
+                    <div className="text-xl font-extrabold text-foreground">
                       {t.input.days} days · {t.input.style}
                     </div>
-                    <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
                       <Calendar className="size-3.5" />
                       {t.input.startDate && t.input.endDate
                         ? `${t.input.startDate} → ${t.input.endDate}`
                         : new Date(t.createdAt).toLocaleDateString()}
                     </div>
-                    <div className="mt-2 text-sm text-muted-foreground">
-                      Budget: {t.input.budget.toLocaleString()} {t.input.currency}
+                    <div className="text-sm font-semibold text-muted-foreground mt-1">
+                      Budget:{" "}
+                      <span className="text-foreground font-bold">
+                        {t.input.budget.toLocaleString()} {t.input.currency}
+                      </span>
                     </div>
                   </div>
                   <button
                     onClick={() => remove(t.id)}
                     aria-label="Delete trip"
-                    className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    className="rounded-full p-2 text-muted-foreground transition-all duration-300 hover:bg-destructive/15 hover:text-destructive border border-transparent hover:border-destructive/10"
                   >
                     <Trash2 className="size-4" />
                   </button>
@@ -120,7 +133,7 @@ function SavedPage() {
                 <Button
                   onClick={() => open(t)}
                   variant="outline"
-                  className="mt-4 w-full rounded-full"
+                  className="mt-5 w-full rounded-full font-bold bg-white/5 border-white/10 hover:bg-white/10 text-foreground transition-all duration-300"
                 >
                   View itinerary <ArrowRight className="ml-1.5 size-4" />
                 </Button>

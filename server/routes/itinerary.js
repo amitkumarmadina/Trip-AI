@@ -25,7 +25,7 @@ router.post("/itinerary", async (req, res) => {
   try {
     const data = InputSchema.parse(req.body);
 
-    const key = process.env.GEMINI_API_KEY;
+    const key = process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.trim() : "";
     let itineraryText = "";
 
     if (key) {
