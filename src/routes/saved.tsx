@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Trash2, MapPin, Calendar, ArrowRight, Plane } from "lucide-react";
+import { Trash2, MapPin, Calendar, ArrowRight, Plane, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
 import { toast } from "sonner";
 import type { SavedTrip } from "@/lib/trip-types";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/saved")({
   head: () => ({
@@ -21,30 +22,54 @@ const KEY = "voyagr:saved";
 function SavedPage() {
   const [trips, setTrips] = useState<SavedTrip[]>([]);
   const navigate = useNavigate();
+  const { user, token, loading: authLoading } = useAuth();
+  const [apiLoading, setApiLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/trips")
-      .then((res) => {
-        if (!res.ok) throw new Error("Backend unavailable");
-        return res.json();
+    // Redirect if unauthenticated
+    if (!authLoading && !user) {
+      sessionStorage.setItem("tripai:redirect", "/saved");
+      toast.error("Please sign in to view your saved trips");
+      navigate({ to: "/login" });
+      return;
+    }
+
+    if (user && token) {
+      setApiLoading(true);
+      fetch("/api/trips", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .then((data) => {
-        setTrips(data);
-      })
-      .catch((err) => {
-        console.warn("Falling back to local storage:", err);
-        try {
-          setTrips(JSON.parse(localStorage.getItem(KEY) || "[]"));
-        } catch {
-          setTrips([]);
-        }
-      });
-  }, []);
+        .then((res) => {
+          if (!res.ok) throw new Error("Backend unavailable");
+          return res.json();
+        })
+        .then((data) => {
+          setTrips(data);
+        })
+        .catch((err) => {
+          console.warn("Falling back to local storage:", err);
+          try {
+            setTrips(JSON.parse(localStorage.getItem(KEY) || "[]"));
+          } catch {
+            setTrips([]);
+          }
+        })
+        .finally(() => {
+          setApiLoading(false);
+        });
+    }
+  }, [user, token, authLoading, navigate]);
 
   const remove = async (id: string) => {
+    if (!token) return;
     try {
       const res = await fetch(`/api/trips/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (!res.ok) throw new Error("Failed to delete trip on backend");
 
@@ -63,6 +88,20 @@ function SavedPage() {
     sessionStorage.setItem("voyagr:current", JSON.stringify(t));
     navigate({ to: "/itinerary" });
   };
+
+  if (authLoading || (user && apiLoading)) {
+    return (
+      <div className="relative min-h-screen bg-background text-foreground overflow-hidden">
+        <Navbar />
+        <div className="flex flex-col items-center justify-center py-32 gap-3">
+          <Loader2 className="size-8 animate-spin text-primary" />
+          <span className="text-sm text-muted-foreground font-semibold">
+            Retrieving your saved trips…
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-hidden">

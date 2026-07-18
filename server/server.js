@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { connectDB } from "./config/db.js";
 import itineraryRouter from "./routes/itinerary.js";
+import authRouter from "./routes/auth.js";
 
 // Load environment variables
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(express.json());
 
 // API Routes
 app.use("/api", itineraryRouter);
+app.use("/api/auth", authRouter);
 
 // Resolve static assets path
 const __filename = fileURLToPath(import.meta.url);

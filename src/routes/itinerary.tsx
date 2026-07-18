@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
 import { toast } from "sonner";
 import type { SavedTrip } from "@/lib/trip-types";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/itinerary")({
   head: () => ({
@@ -38,6 +39,7 @@ function readSaved(): SavedTrip[] {
 
 function ItineraryPage() {
   const navigate = useNavigate();
+  const { user, token } = useAuth();
   const [trip, setTrip] = useState<SavedTrip | null>(null);
   const [saved, setSaved] = useState(false);
 
@@ -50,22 +52,16 @@ function ItineraryPage() {
     const t: SavedTrip = JSON.parse(raw);
     setTrip(t);
 
-    // Check if saved on database
-    fetch("/api/trips")
-      .then((res) => (res.ok ? res.json() : []))
-      .then((savedTrips: SavedTrip[]) => {
-        const isSaved = savedTrips.some(
-          (s) =>
-            s.id === t.id ||
-            (s.input.from === t.input.from &&
-              s.input.destination === t.input.destination &&
-              s.input.startDate === t.input.startDate &&
-              s.input.endDate === t.input.endDate &&
-              s.itinerary === t.itinerary),
-        );
-        setSaved(isSaved);
-        if (isSaved) {
-          const matched = savedTrips.find(
+    // Check if saved on database (if logged in)
+    if (token) {
+      fetch("/api/trips", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => (res.ok ? res.json() : []))
+        .then((savedTrips: SavedTrip[]) => {
+          const isSaved = savedTrips.some(
             (s) =>
               s.id === t.id ||
               (s.input.from === t.input.from &&
@@ -74,17 +70,32 @@ function ItineraryPage() {
                 s.input.endDate === t.input.endDate &&
                 s.itinerary === t.itinerary),
           );
-          if (matched && matched.id !== t.id) {
-            const updatedTrip = { ...t, id: matched.id };
-            setTrip(updatedTrip);
-            sessionStorage.setItem("voyagr:current", JSON.stringify(updatedTrip));
+          setSaved(isSaved);
+          if (isSaved) {
+            const matched = savedTrips.find(
+              (s) =>
+                s.id === t.id ||
+                (s.input.from === t.input.from &&
+                  s.input.destination === t.input.destination &&
+                  s.input.startDate === t.input.startDate &&
+                  s.input.endDate === t.input.endDate &&
+                  s.itinerary === t.itinerary),
+            );
+            if (matched && matched.id !== t.id) {
+              const updatedTrip = { ...t, id: matched.id };
+              setTrip(updatedTrip);
+              sessionStorage.setItem("voyagr:current", JSON.stringify(updatedTrip));
+            }
           }
-        }
-      })
-      .catch(() => {
-        setSaved(readSaved().some((s) => s.id === t.id));
-      });
-  }, [navigate]);
+        })
+        .catch(() => {
+          setSaved(readSaved().some((s) => s.id === t.id));
+        });
+    } else {
+      // Guest local storage check
+      setSaved(readSaved().some((s) => s.id === t.id));
+    }
+  }, [navigate, token]);
 
   const summary = useMemo(() => {
     if (!trip) return null;
@@ -120,10 +131,21 @@ function ItineraryPage() {
   }
 
   const toggleSave = async () => {
+    // If not authenticated, prompt login
+    if (!user || !token) {
+      sessionStorage.setItem("tripai:redirect", "/itinerary");
+      toast.error("Please sign in to save your travel itineraries");
+      navigate({ to: "/login" });
+      return;
+    }
+
     try {
       if (saved) {
         const res = await fetch(`/api/trips/${trip.id}`, {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
         if (!res.ok) throw new Error("Failed to delete trip");
         setSaved(false);
@@ -131,7 +153,10 @@ function ItineraryPage() {
       } else {
         const res = await fetch("/api/trips", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify({
             input: trip.input,
             itinerary: trip.itinerary,
@@ -143,7 +168,7 @@ function ItineraryPage() {
         setTrip(savedTrip);
         sessionStorage.setItem("voyagr:current", JSON.stringify(savedTrip));
         setSaved(true);
-        toast.success("Trip saved!");
+        toast.success("Trip saved to database!");
       }
     } catch (err) {
       console.error(err);
@@ -234,7 +259,7 @@ function ItineraryPage() {
             ) : (
               <Bookmark className="mr-1.5 size-4" />
             )}
-            {saved ? "Saved to database" : "Save trip"}
+            {saved ? "Saved" : "Save trip"}
           </Button>
           <Button
             onClick={copy}

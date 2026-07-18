@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const TripSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   input: {
     from: { type: String, required: true },
     destination: { type: String, default: "" },

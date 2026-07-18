@@ -40,7 +40,10 @@ function Hero() {
               AI intelligence
             </span>
           </h1>
-          <p className="mt-6 max-w-xl text-lg text-muted-foreground leading-relaxed">
+          <p className="mt-3 text-lg font-bold text-accent-foreground tracking-tight">
+            Plan your trip here & book anywhere
+          </p>
+          <p className="mt-3 max-w-xl text-muted-foreground leading-relaxed">
             Tell us your budget, destination, and interests. Our AI crafts a highly personalized
             travel itinerary in seconds — complete with day-by-day routines, smart budgets, and
             packing guides.
@@ -262,14 +265,24 @@ function Footer() {
   return (
     <footer className="border-t border-white/5 bg-background/50 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-10 text-sm text-muted-foreground sm:flex-row">
-        <div className="flex items-center gap-2">
-          <span className="grid size-6 place-items-center rounded-lg bg-[image:var(--gradient-hero)] text-white shadow-sm">
-            <Plane className="size-3.5 -rotate-45" />
+        <div className="flex items-center gap-3">
+          <div className="relative shrink-0 overflow-hidden rounded-lg bg-white p-0.5 border border-white/10 shadow-sm">
+            <img src="/logo.png" alt="Trip AI Logo" className="size-6 object-contain" />
+          </div>
+          <div className="flex flex-col justify-center leading-none">
+            <span className="font-bold text-foreground flex items-center">
+              Trip
+              <span className="bg-[image:var(--gradient-hero)] bg-clip-text text-transparent ml-0.5">
+                AI
+              </span>
+            </span>
+            <span className="text-[6.5px] font-semibold uppercase tracking-wider text-muted-foreground mt-0.5">
+              Plan your trip here & book anywhere
+            </span>
+          </div>
+          <span className="text-xs text-muted-foreground ml-2 border-l border-white/10 pl-2">
+            © {new Date().getFullYear()}
           </span>
-          <span className="font-bold bg-[image:var(--gradient-hero)] bg-clip-text text-transparent">
-            Trip AI
-          </span>
-          <span>© {new Date().getFullYear()} — AI Travel Planner</span>
         </div>
         <div className="flex gap-4 font-medium text-xs">
           <span>Privacy Policy</span>

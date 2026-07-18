@@ -1,6 +1,7 @@
 import express from "express";
 import { z } from "zod";
 import { Trip } from "../models/Trip.js";
+import { protect } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -251,9 +252,9 @@ Keep it practical, specific, and inspiring. Use emojis sparingly in headings.`;
   }
 });
 // Get all saved trips from MongoDB
-router.get("/trips", async (req, res) => {
+router.get("/trips", protect, async (req, res) => {
   try {
-    const trips = await Trip.find().sort({ createdAt: -1 });
+    const trips = await Trip.find({ user: req.user.id }).sort({ createdAt: -1 });
     const formatted = trips.map((t) => ({
       id: t._id.toString(),
       createdAt: t.createdAt.getTime(),
@@ -267,9 +268,10 @@ router.get("/trips", async (req, res) => {
 });
 
 // Save a trip to MongoDB
-router.post("/trips", async (req, res) => {
+router.post("/trips", protect, async (req, res) => {
   try {
     const newTrip = new Trip({
+      user: req.user.id,
       input: req.body.input,
       itinerary: req.body.itinerary,
     });
@@ -281,14 +283,19 @@ router.post("/trips", async (req, res) => {
       itinerary: saved.itinerary,
     });
   } catch (error) {
+    console.error("Save Trip Error:", error);
     res.status(400).json({ error: "Failed to save trip" });
   }
 });
+
 // Delete a trip from MongoDB
-router.delete("/trips/:id", async (req, res) => {
+router.delete("/trips/:id", protect, async (req, res) => {
   try {
     const { id } = req.params;
-    await Trip.findByIdAndDelete(id);
+    const deleted = await Trip.findOneAndDelete({ _id: id, user: req.user.id });
+    if (!deleted) {
+      return res.status(404).json({ error: "Trip not found or unauthorized" });
+    }
     res.json({ success: true, message: "Trip deleted successfully" });
   } catch (error) {
     res.status(400).json({ error: "Failed to delete trip" });
