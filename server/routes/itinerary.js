@@ -302,4 +302,28 @@ router.delete("/trips/:id", protect, async (req, res) => {
   }
 });
 
+// Update a saved trip in MongoDB
+router.put("/trips/:id", protect, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { itinerary } = req.body;
+    const updated = await Trip.findOneAndUpdate(
+      { _id: id, user: req.user.id },
+      { itinerary },
+      { new: true },
+    );
+    if (!updated) {
+      return res.status(404).json({ error: "Trip not found or unauthorized" });
+    }
+    res.json({
+      id: updated._id.toString(),
+      createdAt: updated.createdAt.getTime(),
+      input: updated.input,
+      itinerary: updated.itinerary,
+    });
+  } catch (error) {
+    res.status(400).json({ error: "Failed to update trip" });
+  }
+});
+
 export default router;

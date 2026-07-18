@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -14,6 +14,9 @@ import {
   Users,
   Wallet,
   Compass,
+  Send,
+  Loader2,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
@@ -38,12 +41,35 @@ function readSaved(): SavedTrip[] {
   }
 }
 
+interface ChatMessage {
+  id: string;
+  sender: "user" | "bot";
+  text: string;
+}
+
 function ItineraryPage() {
   const navigate = useNavigate();
   const { user, token } = useAuth();
   const [trip, setTrip] = useState<SavedTrip | null>(null);
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState<"itinerary" | "booking">("itinerary");
+
+  // Chatbot states
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: "welcome",
+      sender: "bot",
+      text: "Hi! I'm Atlas AI, your premium trip concierge. Feel free to ask me questions about this plan, or ask me to change anything (e.g. 'Change this to a couple trip', 'Make the budget cheaper', or 'Suggest dinner spots for Day 3')! I will modify the plan for you live.",
+    },
+  ]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll chat log
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, chatLoading]);
 
   useEffect(() => {
     const raw = sessionStorage.getItem("voyagr:current");
@@ -208,6 +234,99 @@ function ItineraryPage() {
     }
   };
 
+  // Chat message submit handler
+  const sendChatMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim() || chatLoading) return;
+
+    const userMsg = chatInput.trim();
+    setChatInput("");
+    setChatLoading(true);
+
+    const userMessageId = Math.random().toString();
+    setMessages((prev) => [...prev, { id: userMessageId, sender: "user", text: userMsg }]);
+
+    try {
+      const res = await fetch("/api/itinerary/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          itinerary: trip.itinerary,
+          message: userMsg,
+          history: messages.slice(-8), // Send last 8 messages for context
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to talk to AI concierge");
+      }
+
+      const botReplyRaw = data.reply || "";
+
+      // Check for <updated_itinerary>...</updated_itinerary> XML tags
+      const match = botReplyRaw.match(/<updated_itinerary>([\s\S]*?)<\/updated_itinerary>/);
+
+      let botTextResponse = botReplyRaw;
+      if (match) {
+        // Extract conversation response and strip the tag block
+        botTextResponse = botReplyRaw
+          .replace(/<updated_itinerary>[\s\S]*?<\/updated_itinerary>/g, "")
+          .trim();
+        if (!botTextResponse) {
+          botTextResponse = "I have updated your itinerary based on your preferences!";
+        }
+
+        const newItineraryText = match[1].trim();
+
+        // Update local trip state
+        const updatedTrip = { ...trip, itinerary: newItineraryText };
+        setTrip(updatedTrip);
+        sessionStorage.setItem("voyagr:current", JSON.stringify(updatedTrip));
+
+        // If trip is saved, sync changes to MongoDB database!
+        if (saved && token) {
+          fetch(`/api/trips/${trip.id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ itinerary: newItineraryText }),
+          })
+            .then((syncRes) => {
+              if (syncRes.ok) {
+                toast.success("Itinerary updated and synced to account!");
+              }
+            })
+            .catch((err) => {
+              console.warn("MongoDB sync failed on update:", err);
+            });
+        } else {
+          toast.success("Itinerary updated!");
+        }
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        { id: Math.random().toString(), sender: "bot", text: botTextResponse },
+      ]);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Something went wrong";
+      toast.error(msg);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Math.random().toString(),
+          sender: "bot",
+          text: `Sorry, I encountered an error: ${msg}. Please make sure GROQ_API_KEY is configured in your .env.`,
+        },
+      ]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-hidden">
       {/* Background Orbs */}
@@ -215,7 +334,7 @@ function ItineraryPage() {
       <div className="glow-orb glow-orb-secondary bottom-[-100px] left-[-100px] size-[300px] sm:size-[450px]" />
 
       <Navbar />
-      <div className="mx-auto max-w-4xl px-6 py-10">
+      <div className="mx-auto max-w-7xl px-6 py-10">
         <Link
           to="/"
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
@@ -249,77 +368,150 @@ function ItineraryPage() {
           </div>
         </div>
 
-        {/* Tab Selection */}
-        <div className="mt-8 flex border-b border-white/5 pb-px print:hidden">
-          <button
-            onClick={() => setActiveTab("itinerary")}
-            className={`pb-3 text-sm font-bold tracking-tight border-b-2 px-1.5 transition-all duration-300 ${
-              activeTab === "itinerary"
-                ? "border-primary text-foreground font-black"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Itinerary Plan
-          </button>
-          <button
-            onClick={() => setActiveTab("booking")}
-            className={`ml-6 pb-3 text-sm font-bold tracking-tight border-b-2 px-1.5 transition-all duration-300 flex items-center gap-1.5 ${
-              activeTab === "booking"
-                ? "border-primary text-foreground font-black"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Compass className="size-4 text-primary" /> Book Anywhere Hub
-          </button>
-        </div>
-
-        {activeTab === "itinerary" ? (
-          <div className="animate-fade-in">
-            {/* Action Controls */}
-            <div className="mt-6 flex flex-wrap gap-2.5 print:hidden">
-              <Button
-                onClick={toggleSave}
-                variant={saved ? "secondary" : "default"}
-                className="rounded-full font-bold h-11 px-5 bg-white/5 border border-white/10 hover:bg-white/10 text-foreground transition-all duration-300"
+        {/* Desktop Split Screen Container */}
+        <div className="mt-8 grid gap-8 lg:grid-cols-[1.8fr_1fr] items-start">
+          {/* LEFT COLUMN: Itinerary / Booking Content */}
+          <div className="space-y-6">
+            {/* Tab Selection */}
+            <div className="flex border-b border-white/5 pb-px print:hidden">
+              <button
+                onClick={() => setActiveTab("itinerary")}
+                className={`pb-3 text-sm font-bold tracking-tight border-b-2 px-1.5 transition-all duration-300 ${
+                  activeTab === "itinerary"
+                    ? "border-primary text-foreground font-black"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
               >
-                {saved ? (
-                  <BookmarkCheck className="mr-1.5 size-4 text-primary" />
-                ) : (
-                  <Bookmark className="mr-1.5 size-4" />
-                )}
-                {saved ? "Saved" : "Save trip"}
-              </Button>
-              <Button
-                onClick={copy}
-                variant="outline"
-                className="rounded-full font-bold h-11 px-5 bg-transparent border-white/10 hover:bg-white/5 text-foreground transition-all duration-300"
+                Itinerary Plan
+              </button>
+              <button
+                onClick={() => setActiveTab("booking")}
+                className={`ml-6 pb-3 text-sm font-bold tracking-tight border-b-2 px-1.5 transition-all duration-300 flex items-center gap-1.5 ${
+                  activeTab === "booking"
+                    ? "border-primary text-foreground font-black"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
               >
-                <Copy className="mr-1.5 size-4" /> Copy
-              </Button>
-              <Button
-                onClick={share}
-                variant="outline"
-                className="rounded-full font-bold h-11 px-5 bg-transparent border-white/10 hover:bg-white/5 text-foreground transition-all duration-300"
-              >
-                <Share2 className="mr-1.5 size-4" /> Share
-              </Button>
-              <Button
-                onClick={() => window.print()}
-                variant="outline"
-                className="rounded-full font-bold h-11 px-5 bg-transparent border-white/10 hover:bg-white/5 text-foreground transition-all duration-300"
-              >
-                <Printer className="mr-1.5 size-4" /> Print
-              </Button>
+                <Compass className="size-4 text-primary" /> Book Anywhere Hub
+              </button>
             </div>
 
-            {/* Content markdown paper */}
-            <article className="prose prose-invert prose-indigo mt-8 max-w-none rounded-3xl border border-white/5 bg-card/45 p-6 sm:p-10 shadow-2xl backdrop-blur-xl prose-headings:tracking-tight prose-h2:mt-8 prose-h2:border-b prose-h2:border-white/5 prose-h2:pb-3 prose-a:text-primary prose-table:text-sm prose-th:text-muted-foreground prose-td:text-foreground/90">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{trip.itinerary}</ReactMarkdown>
-            </article>
+            {activeTab === "itinerary" ? (
+              <div className="animate-fade-in">
+                {/* Action Controls */}
+                <div className="mt-4 flex flex-wrap gap-2.5 print:hidden">
+                  <Button
+                    onClick={toggleSave}
+                    variant={saved ? "secondary" : "default"}
+                    className="rounded-full font-bold h-11 px-5 bg-white/5 border border-white/10 hover:bg-white/10 text-foreground transition-all duration-300"
+                  >
+                    {saved ? (
+                      <BookmarkCheck className="mr-1.5 size-4 text-primary" />
+                    ) : (
+                      <Bookmark className="mr-1.5 size-4" />
+                    )}
+                    {saved ? "Saved" : "Save trip"}
+                  </Button>
+                  <Button
+                    onClick={copy}
+                    variant="outline"
+                    className="rounded-full font-bold h-11 px-5 bg-transparent border-white/10 hover:bg-white/5 text-foreground transition-all duration-300"
+                  >
+                    <Copy className="mr-1.5 size-4" /> Copy
+                  </Button>
+                  <Button
+                    onClick={share}
+                    variant="outline"
+                    className="rounded-full font-bold h-11 px-5 bg-transparent border-white/10 hover:bg-white/5 text-foreground transition-all duration-300"
+                  >
+                    <Share2 className="mr-1.5 size-4" /> Share
+                  </Button>
+                  <Button
+                    onClick={() => window.print()}
+                    variant="outline"
+                    className="rounded-full font-bold h-11 px-5 bg-transparent border-white/10 hover:bg-white/5 text-foreground transition-all duration-300"
+                  >
+                    <Printer className="mr-1.5 size-4" /> Print
+                  </Button>
+                </div>
+
+                {/* Content markdown paper */}
+                <article className="prose prose-invert prose-indigo mt-6 max-w-none rounded-3xl border border-white/5 bg-card/45 p-6 sm:p-10 shadow-2xl backdrop-blur-xl prose-headings:tracking-tight prose-h2:mt-8 prose-h2:border-b prose-h2:border-white/5 prose-h2:pb-3 prose-a:text-primary prose-table:text-sm prose-th:text-muted-foreground prose-td:text-foreground/90">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{trip.itinerary}</ReactMarkdown>
+                </article>
+              </div>
+            ) : (
+              <BookingHub trip={trip} />
+            )}
           </div>
-        ) : (
-          <BookingHub trip={trip} />
-        )}
+
+          {/* RIGHT COLUMN: AI Chatbot Concierge Panel */}
+          <div className="glass-panel rounded-3xl border-white/5 shadow-xl flex flex-col h-[580px] lg:sticky lg:top-24 overflow-hidden relative">
+            {/* Header */}
+            <div className="p-4 border-b border-white/5 bg-white/[0.01] flex items-center gap-2">
+              <span className="grid size-7 place-items-center rounded-lg bg-primary/10 border border-primary/20 text-primary">
+                <Sparkles className="size-4 text-white" />
+              </span>
+              <div>
+                <h2 className="text-sm font-black text-foreground">Atlas AI</h2>
+                <p className="text-[10px] text-muted-foreground font-semibold">
+                  Tweak inputs & Ask questions
+                </p>
+              </div>
+            </div>
+
+            {/* Message log display */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs font-semibold scrollbar-thin">
+              {messages.map((m) => (
+                <div
+                  key={m.id}
+                  className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[85%] rounded-2xl p-3.5 leading-relaxed shadow-sm ${
+                      m.sender === "user"
+                        ? "bg-[image:var(--gradient-hero)] text-white rounded-br-sm"
+                        : "bg-white/5 border border-white/5 text-foreground rounded-bl-sm"
+                    }`}
+                  >
+                    {m.text}
+                  </div>
+                </div>
+              ))}
+              {chatLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white/5 border border-white/5 text-muted-foreground rounded-2xl rounded-bl-sm p-3.5 flex items-center gap-2">
+                    <Loader2 className="size-3.5 animate-spin text-primary" />
+                    <span>AI is editing your plan…</span>
+                  </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Chat message input form */}
+            <form
+              onSubmit={sendChatMessage}
+              className="p-3 border-t border-white/5 bg-white/[0.01] flex gap-2"
+            >
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                placeholder="Ask to edit itinerary or ask travel questions..."
+                className="flex-1 h-10 rounded-xl bg-white/5 border border-white/10 px-3.5 text-xs text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 placeholder:text-muted-foreground/60"
+                disabled={chatLoading}
+              />
+              <button
+                type="submit"
+                disabled={chatLoading || !chatInput.trim()}
+                className="grid size-10 place-items-center rounded-xl bg-[image:var(--gradient-hero)] text-white hover:brightness-110 disabled:opacity-50 transition-all shadow-glow shrink-0"
+              >
+                <Send className="size-4" />
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );
