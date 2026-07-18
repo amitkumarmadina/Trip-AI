@@ -24,11 +24,27 @@ export interface SavedTrip {
 }
 
 export const INTEREST_OPTIONS = [
-  "Beaches","Mountains","Adventure","Nature","Food","Shopping",
-  "History","Nightlife","Photography","Wildlife","Culture",
+  "Beaches",
+  "Mountains",
+  "Adventure",
+  "Nature",
+  "Food",
+  "Shopping",
+  "History",
+  "Nightlife",
+  "Photography",
+  "Wildlife",
+  "Culture",
 ];
 
-export const STYLE_OPTIONS: TravelStyle[] = ["Luxury","Budget","Backpacking","Family","Solo","Couple"];
-export const ACCOMMODATION_OPTIONS = ["Hotel","Hostel","Resort","Airbnb"];
-export const TRANSPORT_OPTIONS = ["Flight","Train","Bus","Car"];
-export const CURRENCY_OPTIONS = ["USD","EUR","GBP","INR","JPY","AUD","CAD"];
+export const STYLE_OPTIONS: TravelStyle[] = [
+  "Luxury",
+  "Budget",
+  "Backpacking",
+  "Family",
+  "Solo",
+  "Couple",
+];
+export const ACCOMMODATION_OPTIONS = ["Hotel", "Hostel", "Resort", "Airbnb"];
+export const TRANSPORT_OPTIONS = ["Flight", "Train", "Bus", "Car"];
+export const CURRENCY_OPTIONS = ["USD", "EUR", "GBP", "INR", "JPY", "AUD", "CAD"];

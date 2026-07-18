@@ -5,9 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
-import { generateItinerary } from "@/lib/ai.functions";
 import {
   INTEREST_OPTIONS,
   STYLE_OPTIONS,
@@ -49,9 +54,7 @@ export function PlannerForm() {
   const toggleInterest = (i: string) => {
     setForm((f) => ({
       ...f,
-      interests: f.interests.includes(i)
-        ? f.interests.filter((x) => x !== i)
-        : [...f.interests, i],
+      interests: f.interests.includes(i) ? f.interests.filter((x) => x !== i) : [...f.interests, i],
     }));
   };
 
@@ -61,12 +64,27 @@ export function PlannerForm() {
       toast.error("Please enter a departure city");
       return;
     }
-    const days = form.startDate && form.endDate ? daysBetween(form.startDate, form.endDate) : form.days;
+    const days =
+      form.startDate && form.endDate ? daysBetween(form.startDate, form.endDate) : form.days;
     const payload = { ...form, days };
 
     setLoading(true);
     try {
-      const { itinerary } = await generateItinerary({ data: payload });
+      const res = await fetch("/api/itinerary", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || "Failed to generate itinerary");
+      }
+
+      const { itinerary } = await res.json();
+
       const trip: SavedTrip = {
         id: crypto.randomUUID(),
         createdAt: Date.now(),
@@ -96,60 +114,122 @@ export function PlannerForm() {
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Departure city" icon={<MapPin className="size-4" />}>
-          <Input value={form.from} onChange={(e) => update("from", e.target.value)} placeholder="e.g. New York" maxLength={100} />
+          <Input
+            value={form.from}
+            onChange={(e) => update("from", e.target.value)}
+            placeholder="e.g. New York"
+            maxLength={100}
+          />
         </Field>
         <Field label="Destination (optional)" icon={<MapPin className="size-4" />}>
-          <Input value={form.destination} onChange={(e) => update("destination", e.target.value)} placeholder="Surprise me…" maxLength={100} />
+          <Input
+            value={form.destination}
+            onChange={(e) => update("destination", e.target.value)}
+            placeholder="Surprise me…"
+            maxLength={100}
+          />
         </Field>
 
         <Field label="Start date" icon={<Calendar className="size-4" />}>
-          <Input type="date" value={form.startDate} onChange={(e) => update("startDate", e.target.value)} />
+          <Input
+            type="date"
+            value={form.startDate}
+            onChange={(e) => update("startDate", e.target.value)}
+          />
         </Field>
         <Field label="End date" icon={<Calendar className="size-4" />}>
-          <Input type="date" value={form.endDate} onChange={(e) => update("endDate", e.target.value)} />
+          <Input
+            type="date"
+            value={form.endDate}
+            onChange={(e) => update("endDate", e.target.value)}
+          />
         </Field>
 
         <Field label={`Budget (${form.currency})`} icon={<Wallet className="size-4" />}>
-          <Input type="number" min={0} value={form.budget} onChange={(e) => update("budget", Number(e.target.value))} />
+          <Input
+            type="number"
+            min={0}
+            value={form.budget}
+            onChange={(e) => update("budget", Number(e.target.value))}
+          />
         </Field>
         <Field label="Currency">
           <Select value={form.currency} onValueChange={(v) => update("currency", v)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
-              {CURRENCY_OPTIONS.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              {CURRENCY_OPTIONS.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </Field>
 
         <Field label="Travelers" icon={<Users className="size-4" />}>
-          <Input type="number" min={1} max={50} value={form.travelers} onChange={(e) => update("travelers", Number(e.target.value))} />
+          <Input
+            type="number"
+            min={1}
+            max={50}
+            value={form.travelers}
+            onChange={(e) => update("travelers", Number(e.target.value))}
+          />
         </Field>
         <Field label="Days">
-          <Input type="number" min={1} max={60} value={form.days} onChange={(e) => update("days", Number(e.target.value))} />
+          <Input
+            type="number"
+            min={1}
+            max={60}
+            value={form.days}
+            onChange={(e) => update("days", Number(e.target.value))}
+          />
         </Field>
 
         <Field label="Travel style">
-          <Select value={form.style} onValueChange={(v) => update("style", v as TripInput["style"])}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+          <Select
+            value={form.style}
+            onValueChange={(v) => update("style", v as TripInput["style"])}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
-              {STYLE_OPTIONS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              {STYLE_OPTIONS.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </Field>
         <Field label="Accommodation">
           <Select value={form.accommodation} onValueChange={(v) => update("accommodation", v)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
-              {ACCOMMODATION_OPTIONS.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+              {ACCOMMODATION_OPTIONS.map((a) => (
+                <SelectItem key={a} value={a}>
+                  {a}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </Field>
 
         <Field label="Transport">
           <Select value={form.transport} onValueChange={(v) => update("transport", v)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
-              {TRANSPORT_OPTIONS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+              {TRANSPORT_OPTIONS.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {t}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </Field>

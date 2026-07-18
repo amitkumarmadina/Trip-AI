@@ -3,7 +3,16 @@ import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
-  Bookmark, BookmarkCheck, Copy, Printer, Share2, ArrowLeft, MapPin, Calendar, Users, Wallet,
+  Bookmark,
+  BookmarkCheck,
+  Copy,
+  Printer,
+  Share2,
+  ArrowLeft,
+  MapPin,
+  Calendar,
+  Users,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
@@ -12,10 +21,7 @@ import type { SavedTrip } from "@/lib/trip-types";
 
 export const Route = createFileRoute("/itinerary")({
   head: () => ({
-    meta: [
-      { title: "Your itinerary — Voyagr" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Your itinerary — Voyagr" }, { name: "robots", content: "noindex" }],
   }),
   component: ItineraryPage,
 });
@@ -43,7 +49,41 @@ function ItineraryPage() {
     }
     const t: SavedTrip = JSON.parse(raw);
     setTrip(t);
-    setSaved(readSaved().some((s) => s.id === t.id));
+
+    // Check if saved on database
+    fetch("/api/trips")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((savedTrips: SavedTrip[]) => {
+        const isSaved = savedTrips.some(
+          (s) =>
+            s.id === t.id ||
+            (s.input.from === t.input.from &&
+              s.input.destination === t.input.destination &&
+              s.input.startDate === t.input.startDate &&
+              s.input.endDate === t.input.endDate &&
+              s.itinerary === t.itinerary),
+        );
+        setSaved(isSaved);
+        if (isSaved) {
+          const matched = savedTrips.find(
+            (s) =>
+              s.id === t.id ||
+              (s.input.from === t.input.from &&
+                s.input.destination === t.input.destination &&
+                s.input.startDate === t.input.startDate &&
+                s.input.endDate === t.input.endDate &&
+                s.itinerary === t.itinerary),
+          );
+          if (matched && matched.id !== t.id) {
+            const updatedTrip = { ...t, id: matched.id };
+            setTrip(updatedTrip);
+            sessionStorage.setItem("voyagr:current", JSON.stringify(updatedTrip));
+          }
+        }
+      })
+      .catch(() => {
+        setSaved(readSaved().some((s) => s.id === t.id));
+      });
   }, [navigate]);
 
   const summary = useMemo(() => {
@@ -51,8 +91,19 @@ function ItineraryPage() {
     const { input } = trip;
     return [
       { icon: MapPin, label: "Destination", value: input.destination || "AI-picked" },
-      { icon: Calendar, label: "Dates", value: input.startDate && input.endDate ? `${input.startDate} → ${input.endDate}` : `${input.days} days` },
-      { icon: Wallet, label: "Budget", value: `${input.budget.toLocaleString()} ${input.currency}` },
+      {
+        icon: Calendar,
+        label: "Dates",
+        value:
+          input.startDate && input.endDate
+            ? `${input.startDate} → ${input.endDate}`
+            : `${input.days} days`,
+      },
+      {
+        icon: Wallet,
+        label: "Budget",
+        value: `${input.budget.toLocaleString()} ${input.currency}`,
+      },
       { icon: Users, label: "Travelers", value: `${input.travelers} · ${input.style}` },
     ];
   }, [trip]);
@@ -68,16 +119,45 @@ function ItineraryPage() {
     );
   }
 
-  const toggleSave = () => {
-    const list = readSaved();
-    if (saved) {
-      localStorage.setItem(SAVED_KEY, JSON.stringify(list.filter((s) => s.id !== trip.id)));
-      setSaved(false);
-      toast.success("Removed from saved trips");
-    } else {
-      localStorage.setItem(SAVED_KEY, JSON.stringify([trip, ...list]));
-      setSaved(true);
-      toast.success("Trip saved!");
+  const toggleSave = async () => {
+    try {
+      if (saved) {
+        const res = await fetch(`/api/trips/${trip.id}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error("Failed to delete trip");
+        setSaved(false);
+        toast.success("Removed from saved trips");
+      } else {
+        const res = await fetch("/api/trips", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            input: trip.input,
+            itinerary: trip.itinerary,
+          }),
+        });
+        if (!res.ok) throw new Error("Failed to save trip");
+        const savedTrip: SavedTrip = await res.json();
+
+        setTrip(savedTrip);
+        sessionStorage.setItem("voyagr:current", JSON.stringify(savedTrip));
+        setSaved(true);
+        toast.success("Trip saved!");
+      }
+    } catch (err) {
+      console.error(err);
+      // Fallback
+      const list = readSaved();
+      if (saved) {
+        localStorage.setItem(SAVED_KEY, JSON.stringify(list.filter((s) => s.id !== trip.id)));
+        setSaved(false);
+        toast.success("Removed from saved trips (local)");
+      } else {
+        localStorage.setItem(SAVED_KEY, JSON.stringify([trip, ...list]));
+        setSaved(true);
+        toast.success("Trip saved (locally)!");
+      }
     }
   };
 
@@ -90,7 +170,9 @@ function ItineraryPage() {
     if (navigator.share) {
       try {
         await navigator.share({ title: "My Voyagr itinerary", text: trip.itinerary.slice(0, 500) });
-      } catch {}
+      } catch (err) {
+        console.warn("Share failed:", err);
+      }
     } else {
       copy();
     }
@@ -100,7 +182,10 @@ function ItineraryPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="mx-auto max-w-4xl px-6 py-10">
-        <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="size-4" /> New trip
         </Link>
 
@@ -122,8 +207,16 @@ function ItineraryPage() {
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2 print:hidden">
-          <Button onClick={toggleSave} variant={saved ? "secondary" : "default"} className="rounded-full">
-            {saved ? <BookmarkCheck className="mr-1.5 size-4" /> : <Bookmark className="mr-1.5 size-4" />}
+          <Button
+            onClick={toggleSave}
+            variant={saved ? "secondary" : "default"}
+            className="rounded-full"
+          >
+            {saved ? (
+              <BookmarkCheck className="mr-1.5 size-4" />
+            ) : (
+              <Bookmark className="mr-1.5 size-4" />
+            )}
             {saved ? "Saved" : "Save trip"}
           </Button>
           <Button onClick={copy} variant="outline" className="rounded-full">

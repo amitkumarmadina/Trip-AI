@@ -38,7 +38,9 @@ function Hero() {
           </span>
           <h1 className="mt-5 text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
             Plan your perfect trip with{" "}
-            <span className="bg-[image:var(--gradient-hero)] bg-clip-text text-transparent">AI</span>
+            <span className="bg-[image:var(--gradient-hero)] bg-clip-text text-transparent">
+              AI
+            </span>
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted-foreground">
             Tell us your budget, destination, and interests. Our AI creates a personalized travel
@@ -66,12 +68,36 @@ function Stat({ value, label }: { value: string; label: string }) {
 }
 
 const DESTINATIONS = [
-  { name: "Kyoto, Japan", tag: "Culture · Temples", img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=800&q=70" },
-  { name: "Santorini, Greece", tag: "Beaches · Sunsets", img: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?auto=format&fit=crop&w=800&q=70" },
-  { name: "Banff, Canada", tag: "Mountains · Nature", img: "https://images.unsplash.com/photo-1609825488888-3a766db05542?auto=format&fit=crop&w=800&q=70" },
-  { name: "Marrakech, Morocco", tag: "History · Food", img: "https://images.unsplash.com/photo-1597212618440-806262de4f6b?auto=format&fit=crop&w=800&q=70" },
-  { name: "Bali, Indonesia", tag: "Beaches · Wellness", img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=70" },
-  { name: "Reykjavik, Iceland", tag: "Adventure · Nature", img: "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=800&q=70" },
+  {
+    name: "Kyoto, Japan",
+    tag: "Culture · Temples",
+    img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=800&q=70",
+  },
+  {
+    name: "Santorini, Greece",
+    tag: "Beaches · Sunsets",
+    img: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?auto=format&fit=crop&w=800&q=70",
+  },
+  {
+    name: "Banff, Canada",
+    tag: "Mountains · Nature",
+    img: "https://images.unsplash.com/photo-1609825488888-3a766db05542?auto=format&fit=crop&w=800&q=70",
+  },
+  {
+    name: "Marrakech, Morocco",
+    tag: "History · Food",
+    img: "https://images.unsplash.com/photo-1597212618440-806262de4f6b?auto=format&fit=crop&w=800&q=70",
+  },
+  {
+    name: "Bali, Indonesia",
+    tag: "Beaches · Wellness",
+    img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=70",
+  },
+  {
+    name: "Reykjavik, Iceland",
+    tag: "Adventure · Nature",
+    img: "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=800&q=70",
+  },
 ];
 
 function Destinations() {
@@ -80,7 +106,9 @@ function Destinations() {
       <div className="mb-8 flex items-end justify-between">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight">Popular destinations</h2>
-          <p className="mt-2 text-muted-foreground">Get inspired by trending places our travelers love.</p>
+          <p className="mt-2 text-muted-foreground">
+            Get inspired by trending places our travelers love.
+          </p>
         </div>
       </div>
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -105,12 +133,36 @@ function Destinations() {
 }
 
 const FEATURES = [
-  { icon: Sparkles, title: "AI-crafted itineraries", desc: "Day-by-day plans tuned to your style, pace, and interests." },
-  { icon: Wallet, title: "Smart budgets", desc: "Full cost breakdowns for lodging, food, transport, and activities." },
-  { icon: Map, title: "Local gems", desc: "Discover hidden spots the guidebooks miss — recommended by AI." },
-  { icon: Globe2, title: "Any destination", desc: "From weekend city breaks to month-long adventures across the globe." },
-  { icon: Compass, title: "Packing lists", desc: "Auto-generated checklists tailored to your trip and weather." },
-  { icon: Star, title: "Save & revisit", desc: "Bookmark itineraries and come back to them anytime." },
+  {
+    icon: Sparkles,
+    title: "AI-crafted itineraries",
+    desc: "Day-by-day plans tuned to your style, pace, and interests.",
+  },
+  {
+    icon: Wallet,
+    title: "Smart budgets",
+    desc: "Full cost breakdowns for lodging, food, transport, and activities.",
+  },
+  {
+    icon: Map,
+    title: "Local gems",
+    desc: "Discover hidden spots the guidebooks miss — recommended by AI.",
+  },
+  {
+    icon: Globe2,
+    title: "Any destination",
+    desc: "From weekend city breaks to month-long adventures across the globe.",
+  },
+  {
+    icon: Compass,
+    title: "Packing lists",
+    desc: "Auto-generated checklists tailored to your trip and weather.",
+  },
+  {
+    icon: Star,
+    title: "Save & revisit",
+    desc: "Bookmark itineraries and come back to them anytime.",
+  },
 ];
 
 function Features() {
@@ -120,7 +172,10 @@ function Features() {
         <h2 className="text-3xl font-semibold tracking-tight">Why travelers love Voyagr</h2>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="rounded-2xl border border-border/60 bg-card p-6 shadow-[var(--shadow-soft)]">
+            <div
+              key={title}
+              className="rounded-2xl border border-border/60 bg-card p-6 shadow-[var(--shadow-soft)]"
+            >
               <div className="mb-4 grid size-11 place-items-center rounded-xl bg-[image:var(--gradient-hero)] text-primary-foreground">
                 <Icon className="size-5" />
               </div>
@@ -135,9 +190,22 @@ function Features() {
 }
 
 const TESTIMONIALS = [
-  { name: "Amara O.", trip: "Lisbon · 7 days", quote: "It felt like a friend who's been everywhere planned my whole week. Restaurants were spot on." },
-  { name: "Ravi K.", trip: "Iceland · 10 days", quote: "The daily budgets kept us on track. Loved the hidden viewpoints it suggested." },
-  { name: "Elena M.", trip: "Kyoto · 5 days", quote: "Perfect pace for a solo traveler. Packing list saved me hours." },
+  {
+    name: "Amara O.",
+    trip: "Lisbon · 7 days",
+    quote:
+      "It felt like a friend who's been everywhere planned my whole week. Restaurants were spot on.",
+  },
+  {
+    name: "Ravi K.",
+    trip: "Iceland · 10 days",
+    quote: "The daily budgets kept us on track. Loved the hidden viewpoints it suggested.",
+  },
+  {
+    name: "Elena M.",
+    trip: "Kyoto · 5 days",
+    quote: "Perfect pace for a solo traveler. Packing list saved me hours.",
+  },
 ];
 
 function Testimonials() {
@@ -146,13 +214,18 @@ function Testimonials() {
       <h2 className="text-3xl font-semibold tracking-tight">Loved by travelers</h2>
       <div className="mt-8 grid gap-5 md:grid-cols-3">
         {TESTIMONIALS.map((t) => (
-          <figure key={t.name} className="rounded-2xl border border-border/60 bg-card p-6 shadow-[var(--shadow-soft)]">
+          <figure
+            key={t.name}
+            className="rounded-2xl border border-border/60 bg-card p-6 shadow-[var(--shadow-soft)]"
+          >
             <div className="flex gap-1 text-primary">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className="size-4 fill-current" />
               ))}
             </div>
-            <blockquote className="mt-3 text-sm leading-relaxed text-foreground/90">“{t.quote}”</blockquote>
+            <blockquote className="mt-3 text-sm leading-relaxed text-foreground/90">
+              “{t.quote}”
+            </blockquote>
             <figcaption className="mt-4 text-sm">
               <div className="font-semibold">{t.name}</div>
               <div className="text-muted-foreground">{t.trip}</div>
