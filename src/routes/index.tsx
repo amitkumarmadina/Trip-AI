@@ -369,9 +369,6 @@ function LandingPage() {
 
           {/* CTAs */}
           <div className="flex items-center gap-4.5">
-            <span className="text-[11px] text-[#94A3B8] font-bold border border-white/10 rounded-full px-3 py-1 flex items-center gap-1.5 bg-white/5 cursor-pointer">
-              🌐 EN
-            </span>
             <Link to="/login" className="text-[15px] font-bold text-[#94A3B8] hover:text-[#F8FAFC] transition-colors">
               Log in
             </Link>
@@ -732,52 +729,73 @@ function LandingPage() {
           </button>
         </div>
 
-        {/* 5 Destination Cards Slider row */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
-          {[
-            { name: "Manali", country: "Himachal Pradesh", price: "6,200", stars: "4.9 (2.5k)", season: "Winter", tag: "Best Seller", img: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=350&q=70" },
-            { name: "Goa", country: "India", price: "4,500", stars: "4.8 (1.8k)", season: "Winter", tag: "", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=350&q=70" },
-            { name: "Kerala", country: "God's Own Country", price: "7,500", stars: "4.9 (2.5k)", season: "Monsoon", tag: "Popular", img: "https://plus.unsplash.com/premium_photo-1697729438401-fcb4ff66d9a8?w=1200&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8a2VyYWxhfGVufDB8fDB8fHww" },
-            { name: "Ladakh", country: "Jammu & Kashmir", price: "9,900", stars: "4.9 (1.6k)", season: "Summer", tag: "", img: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=350&q=70" },
-            { name: "Bali", country: "Indonesia", price: "12,500", stars: "4.8 (1.4k)", season: "Dry", tag: "", img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=350&q=70" },
-          ].map((d, i) => (
-            <article
-              key={i}
-              onClick={() => {
-                setHeroTo(d.name);
-                toast.success(`Selected destination: ${d.name}`);
-              }}
-              className="group cursor-pointer relative overflow-hidden rounded-2xl border border-white/5 bg-[#1E293B] shadow-soft transition-all duration-500 hover:border-[#10B981]/30 hover:shadow-glow hover:-translate-y-1 text-left font-outfit"
-            >
-              <div className="h-48 overflow-hidden relative">
-                <img src={d.img} alt={d.name} className="size-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-transparent to-black/25 pointer-events-none" />
-                {d.tag && (
-                  <span className="absolute top-3.5 left-3.5 bg-[#10B981] text-[#0F172A] rounded-full px-3 py-0.5 text-[9px] font-black border border-[#10B981]/20 uppercase tracking-wider">
-                    {d.tag}
-                  </span>
-                )}
-              </div>
-              <div className="p-5 relative z-10 leading-tight space-y-1.5">
-                <h4 className="text-[17px] font-bold text-[#F8FAFC] group-hover:text-[#10B981] transition-colors">{d.name}</h4>
-                <p className="text-[11px] text-[#94A3B8] font-bold uppercase tracking-wide">{d.country}</p>
+        {/* Infinite Horizontal Marquee Scroll Track Container */}
+        <div className="relative w-full overflow-hidden py-6 select-none">
+          {/* Faded edges overlay for premium SaaS look */}
+          <div className="absolute left-0 inset-y-0 w-16 sm:w-28 bg-gradient-to-r from-[#0F172A] to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 inset-y-0 w-16 sm:w-28 bg-gradient-to-l from-[#0F172A] to-transparent z-10 pointer-events-none" />
 
-                <div className="flex items-center gap-1.5">
-                  <Star className="size-3.5 text-[#F59E0B] fill-current" />
-                  <span className="text-[11px] text-[#94A3B8] font-extrabold">{d.stars}</span>
+          {/* Scrolling loop */}
+          <div className="animate-marquee flex gap-6 hover:[animation-play-state:paused] transition-all">
+            {[
+              { name: "Manali", country: "Himachal Pradesh", price: "6,200", stars: "4.9 (2.5k)", season: "Winter", tag: "Best Seller", img: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=350&q=70" },
+              { name: "Goa", country: "India", price: "4,500", stars: "4.8 (1.8k)", season: "Winter", tag: "", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=350&q=70" },
+              { name: "Kerala", country: "God's Own Country", price: "7,500", stars: "4.9 (2.5k)", season: "Monsoon", tag: "Popular", img: "https://plus.unsplash.com/premium_photo-1697729438401-fcb4ff66d9a8?w=1200&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8a2VyYWxhfGVufDB8fDB8fHww" },
+              { name: "Ladakh", country: "Jammu & Kashmir", price: "9,900", stars: "4.9 (1.6k)", season: "Summer", tag: "", img: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=350&q=70" },
+              { name: "Bali", country: "Indonesia", price: "12,500", stars: "4.8 (1.4k)", season: "Dry", tag: "", img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=350&q=70" },
+              { name: "Maldives", country: "Tropical Islands", price: "14,800", stars: "4.9 (1.2k)", season: "Dry", tag: "Luxury", img: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=350&q=70" },
+              { name: "Shimla", country: "Himachal Pradesh", price: "5,800", stars: "4.7 (2.1k)", season: "Winter", tag: "", img: "https://images.unsplash.com/photo-1597075687490-8f673c6c17f6?auto=format&fit=crop&w=350&q=70" },
+              { name: "Paris", country: "France", price: "24,500", stars: "4.8 (3.4k)", season: "Spring", tag: "Romantic", img: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=350&q=70" },
+              { name: "Tokyo", country: "Japan", price: "18,900", stars: "4.9 (2.8k)", season: "Spring", tag: "Trending", img: "https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=350&q=70" }
+            ].concat([
+              { name: "Manali", country: "Himachal Pradesh", price: "6,200", stars: "4.9 (2.5k)", season: "Winter", tag: "Best Seller", img: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=350&q=70" },
+              { name: "Goa", country: "India", price: "4,500", stars: "4.8 (1.8k)", season: "Winter", tag: "", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=350&q=70" },
+              { name: "Kerala", country: "God's Own Country", price: "7,500", stars: "4.9 (2.5k)", season: "Monsoon", tag: "Popular", img: "https://plus.unsplash.com/premium_photo-1697729438401-fcb4ff66d9a8?w=1200&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8a2VyYWxhfGVufDB8fDB8fHww" },
+              { name: "Ladakh", country: "Jammu & Kashmir", price: "9,900", stars: "4.9 (1.6k)", season: "Summer", tag: "", img: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=350&q=70" },
+              { name: "Bali", country: "Indonesia", price: "12,500", stars: "4.8 (1.4k)", season: "Dry", tag: "", img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=350&q=70" },
+              { name: "Maldives", country: "Tropical Islands", price: "14,800", stars: "4.9 (1.2k)", season: "Dry", tag: "Luxury", img: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=350&q=70" },
+              { name: "Shimla", country: "Himachal Pradesh", price: "5,800", stars: "4.7 (2.1k)", season: "Winter", tag: "", img: "https://images.unsplash.com/photo-1597075687490-8f673c6c17f6?auto=format&fit=crop&w=350&q=70" },
+              { name: "Paris", country: "France", price: "24,500", stars: "4.8 (3.4k)", season: "Spring", tag: "Romantic", img: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=350&q=70" },
+              { name: "Tokyo", country: "Japan", price: "18,900", stars: "4.9 (2.8k)", season: "Spring", tag: "Trending", img: "https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=350&q=70" }
+            ]).map((d, i) => (
+              <article
+                key={i}
+                onClick={() => {
+                  setHeroTo(d.name);
+                  toast.success(`Selected destination: ${d.name}`);
+                }}
+                className="w-[230px] md:w-[250px] shrink-0 group cursor-pointer relative overflow-hidden rounded-2xl border border-white/5 bg-[#1E293B] shadow-soft transition-all duration-500 hover:border-[#10B981]/30 hover:shadow-glow hover:-translate-y-1 text-left font-outfit"
+              >
+                <div className="h-44 overflow-hidden relative">
+                  <img src={d.img} alt={d.name} className="size-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-transparent to-black/25 pointer-events-none" />
+                  {d.tag && (
+                    <span className="absolute top-3.5 left-3.5 bg-[#10B981] text-[#0F172A] rounded-full px-3 py-0.5 text-[9px] font-black border border-[#10B981]/20 uppercase tracking-wider">
+                      {d.tag}
+                    </span>
+                  )}
                 </div>
+                <div className="p-4.5 relative z-10 leading-tight space-y-1">
+                  <h4 className="text-[16px] font-bold text-[#F8FAFC] group-hover:text-[#10B981] transition-colors">{d.name}</h4>
+                  <p className="text-[10px] text-[#94A3B8] font-bold uppercase tracking-wide">{d.country}</p>
 
-                <div className="text-[11px] text-[#94A3B8] font-bold pt-1.5">
-                  ⛅ Best Season: <span className="text-[#F8FAFC]">{d.season}</span>
-                </div>
+                  <div className="flex items-center gap-1 mt-1">
+                    <Star className="size-3 text-[#F59E0B] fill-current" />
+                    <span className="text-[10px] text-[#94A3B8] font-extrabold">{d.stars}</span>
+                  </div>
 
-                <div className="flex items-center justify-between mt-4 border-t border-white/5 pt-3">
-                  <span className="text-[10px] text-[#94A3B8] font-bold">Starting Price</span>
-                  <span className="text-xs font-black text-[#F8FAFC]">₹{d.price}</span>
+                  <div className="text-[10px] text-[#94A3B8] font-bold pt-1">
+                    ⛅ Season: <span className="text-[#F8FAFC]">{d.season}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-3 border-t border-white/5 pt-2">
+                    <span className="text-[9px] text-[#94A3B8] font-bold">Starting Price</span>
+                    <span className="text-xs font-black text-[#F8FAFC]">₹{d.price}</span>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -828,35 +846,13 @@ function LandingPage() {
             </div>
           </div>
 
-          {/* Suitcase visual mockup */}
+          {/* Suitcase Image */}
           <div className="relative flex justify-center items-center">
-            <div className="rounded-3xl border border-white/10 bg-[#1E293B] p-8 w-[380px] shadow-soft relative flex flex-col items-center">
-
-              {/* Suitcase visual mockup representation */}
-              <div className="size-32 bg-[#10B981]/10 border-2 border-[#10B981]/30 rounded-3xl flex items-center justify-center relative">
-                <div className="w-2 h-7 bg-[#10B981] absolute top-[-7px] rounded" />
-                <div className="w-16 h-22 border-2 border-dashed border-[#10B981]/20 rounded-xl" />
-                <span className="text-4xl absolute">🧳</span>
-              </div>
-
-              {/* Passport & Camera float simulations */}
-              <div className="absolute top-[15%] right-[-25px] rounded-xl border border-white/5 bg-[#172235]/95 px-4 py-2 text-[10px] font-extrabold text-[#F8FAFC] shadow-soft flex items-center gap-1.5">
-                🛂 Passport
-              </div>
-              <div className="absolute top-[45%] left-[-35px] rounded-xl border border-white/5 bg-[#172235]/95 px-4 py-2 text-[10px] font-extrabold text-[#F8FAFC] shadow-soft flex items-center gap-1.5">
-                📸 Camera
-              </div>
-
-              <h4 className="text-[22px] font-extrabold text-[#F8FAFC] mt-8 font-outfit">Ready to Travel</h4>
-              <p className="text-[13px] text-[#94A3B8] mt-1 text-center max-w-[220px] font-outfit">Pack your bags and start your digital voyage.</p>
-
-              {/* Floating stats badge */}
-              <div className="absolute bottom-[10%] right-[-35px] rounded-xl border border-[#10B981]/25 bg-gradient-to-tr from-[#10B981]/10 to-[#1E293B]/95 p-3.5 text-left text-[10px] font-extrabold space-y-1 text-[#F8FAFC] shadow-soft">
-                <div>🌐 14 Countries</div>
-                <div>📍 28 Cities</div>
-                <div>✈️ 4 Bookings</div>
-              </div>
-            </div>
+            <img 
+              src="/suitcase.png" 
+              alt="Suitcase and Travel Equipment" 
+              className="h-96 md:h-[440px] object-contain relative z-10 select-none"
+            />
           </div>
         </div>
       </section>

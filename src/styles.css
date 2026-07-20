@@ -284,3 +284,20 @@
   animation: float-fast 5s ease-in-out infinite;
 }
 
+/* Infinite Horizontal Marquee Auto-Scroll */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 35s linear infinite;
+}
+
+
