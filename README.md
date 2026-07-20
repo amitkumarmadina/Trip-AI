@@ -6,76 +6,65 @@ Equipped with **Atlas AI**—a real-time conversational chat assistant—you can
 
 ---
 
-## 🚀 Deployment Guide (Vercel + Render)
+## 📷 UI Showcase & Mockups
 
-This project is optimized to run with the **Frontend hosted on Vercel** and the **Backend API server hosted on Render**. Follow these steps to deploy the application.
+Here are some visual showcases of the Voyagr user interface:
 
-### 1. Deploy the Backend on Render
-1. Sign up/Log in to [Render](https://render.com/).
-2. Create a new **Web Service** and connect your GitHub repository.
-3. Configure the following service settings:
-   - **Runtime**: `Node`
-   - **Build Command**: `npm install`
-   - **Start Command**: `node server/server.js`
-4. Under the **Environment** tab, add the following environment variables:
-   - `PORT`: `10000` (or leave empty, Render assigns this automatically)
-   - `MONGODB_URI`: Your MongoDB connection string (e.g., MongoDB Atlas URI)
-   - `JWT_SECRET`: A secure random string for JWT hashing
-   - `GEMINI_API_KEY`: Your Google Gemini API Key
-   - `GROQ_API_KEY`: Your Groq API Key (used for conversational Atlas AI chat)
-   - `NODE_ENV`: `production`
-5. Click **Deploy Web Service** and copy your service's URL once the build finishes (e.g., `https://your-backend.onrender.com`).
+### 🌟 Dashboard View
+*(Insert Dashboard screenshot here)*
+<!-- <img src="/path/to/dashboard.png" width="800" alt="Voyagr Dashboard" /> -->
 
-### 2. Configure Vercel Proxy Routing
-1. Open the [vercel.json](file:///d:/Trip-AI/vercel.json) file at the root of the project.
-2. Replace `https://your-backend.onrender.com` with your actual Render service URL:
-   ```json
-   {
-     "rewrites": [
-       {
-         "source": "/api/:path*",
-         "destination": "https://your-actual-backend.onrender.com/api/:path*"
-       },
-       {
-         "source": "/:path*",
-         "destination": "/index.html"
-       }
-     ]
-   }
-   ```
-3. Commit and push this change to your repository.
+### ✍️ Trip Planner Form
+*(Insert Planner Form screenshot here)*
+<!-- <img src="/path/to/planner-form.png" width="800" alt="Voyagr Trip Planner Form" /> -->
 
-### 3. Deploy the Frontend on Vercel
-1. Log in to the [Vercel Dashboard](https://vercel.com/) and create a new project.
-2. Select your repository.
-3. Vercel will automatically detect **Vite** as the framework preset:
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-4. Click **Deploy**. Vercel will build the Vite SPA and route all `/api/*` requests to your Render backend automatically via the proxy rewrite!
+### 💬 Atlas AI Chat Concierge & Itinerary
+*(Insert Chat Concierge screenshot here)*
+<!-- <img src="/path/to/chat-concierge.png" width="800" alt="Atlas AI Chat Concierge" /> -->
 
 ---
 
-## ⚙️ Local Development Setup
+## ⚙️ Getting Started (Local Development)
 
-To run the application locally on your machine:
+Follow these steps to clone the repository and run Voyagr on your local machine.
 
-### 1. Setup Environment Variables
-Create a `.env` file at the root of the project:
-```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/voyagr
-JWT_SECRET=your_local_jwt_secret
-GEMINI_API_KEY=your_gemini_key
-GROQ_API_KEY=your_groq_key
+### Prerequisites
+Make sure you have **Node.js** (v18+) and **npm** installed on your system.
+
+### 1. Clone the Repository
+Clone this repository to your local machine using git:
+```bash
+git clone https://github.com/your-username/trip-ai.git
+cd trip-ai
 ```
 
 ### 2. Install Dependencies
+Install the required packages for both the Vite client and Express server:
 ```bash
 npm install
 ```
 
-### 3. Run Development Servers
-Start both the **Vite client** (runs on `http://localhost:5173`) and the **Express API server** (runs on `http://localhost:5000`) concurrently:
+### 3. Setup Environment Variables
+Create a file named `.env` in the root directory of the project and populate it with the following configuration:
+```env
+# Server Port
+PORT=5000
+
+# MongoDB connection URI (using local MongoDB or MongoDB Atlas)
+MONGODB_URI=mongodb://localhost:27017/voyagr
+
+# JWT authentication secret (a secure random string)
+JWT_SECRET=your_jwt_secret_key_here
+
+# Google Gemini API key (for itinerary generation)
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Groq API key (for conversational Atlas AI chat)
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+### 4. Run Development Servers
+To spin up both the **Vite client** (running on `http://localhost:5173`) and the **Express API server** (running on `http://localhost:5000`) concurrently, run:
 ```bash
 npm run dev
 ```
