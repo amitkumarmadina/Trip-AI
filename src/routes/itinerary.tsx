@@ -31,7 +31,7 @@ export const Route = createFileRoute("/itinerary")({
   component: ItineraryPage,
 });
 
-const SAVED_KEY = "voyagr:saved";
+const SAVED_KEY = "tripai:saved";
 
 function readSaved(): SavedTrip[] {
   try {
@@ -72,7 +72,7 @@ function ItineraryPage() {
   }, [messages, chatLoading]);
 
   useEffect(() => {
-    const raw = sessionStorage.getItem("voyagr:current");
+    const raw = sessionStorage.getItem("tripai:current");
     if (!raw) {
       navigate({ to: "/" });
       return;
@@ -112,7 +112,7 @@ function ItineraryPage() {
             if (matched && matched.id !== t.id) {
               const updatedTrip = { ...t, id: matched.id };
               setTrip(updatedTrip);
-              sessionStorage.setItem("voyagr:current", JSON.stringify(updatedTrip));
+              sessionStorage.setItem("tripai:current", JSON.stringify(updatedTrip));
             }
           }
         })
@@ -194,7 +194,7 @@ function ItineraryPage() {
         const savedTrip: SavedTrip = await res.json();
 
         setTrip(savedTrip);
-        sessionStorage.setItem("voyagr:current", JSON.stringify(savedTrip));
+        sessionStorage.setItem("tripai:current", JSON.stringify(savedTrip));
         setSaved(true);
         toast.success("Trip saved to database!");
       }
@@ -282,7 +282,7 @@ function ItineraryPage() {
         // Update local trip state
         const updatedTrip = { ...trip, itinerary: newItineraryText };
         setTrip(updatedTrip);
-        sessionStorage.setItem("voyagr:current", JSON.stringify(updatedTrip));
+        sessionStorage.setItem("tripai:current", JSON.stringify(updatedTrip));
 
         // If trip is saved, sync changes to MongoDB database!
         if (saved && token) {

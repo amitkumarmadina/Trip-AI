@@ -91,7 +91,7 @@ export function PlannerForm() {
         input: payload,
         itinerary,
       };
-      sessionStorage.setItem("voyagr:current", JSON.stringify(trip));
+      sessionStorage.setItem("tripai:current", JSON.stringify(trip));
       navigate({ to: "/itinerary" });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong";

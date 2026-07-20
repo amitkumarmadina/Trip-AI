@@ -1,6 +1,6 @@
-# ✈️ Trip AI — Voyagr
+# ✈️ Trip AI
 
-Voyagr (Trip AI) is a premium, AI-powered travel concierge and planner. It generates detailed, highly personalized day-by-day travel itineraries in seconds based on your departing location, destination, budget, travel style, interests, accommodation, and transport preferences. 
+Trip AI is a premium, AI-powered travel concierge and planner. It generates detailed, highly personalized day-by-day travel itineraries in seconds based on your departing location, destination, budget, travel style, interests, accommodation, and transport preferences. 
 
 Equipped with **Atlas AI**—a real-time conversational chat assistant—you can ask to modify, swap, or refine activities, and watch your itinerary and budget tables update dynamically.
 
@@ -8,15 +8,15 @@ Equipped with **Atlas AI**—a real-time conversational chat assistant—you can
 
 ## 📷 UI Showcase & Mockups
 
-Here are some visual showcases of the Voyagr user interface:
+Here are some visual showcases of the Trip AI user interface:
 
 ### 🌟 Dashboard View
 *(Insert Dashboard screenshot here)*
-<!-- <img src="/path/to/dashboard.png" width="800" alt="Voyagr Dashboard" /> -->
+<!-- <img src="/path/to/dashboard.png" width="800" alt="Trip AI Dashboard" /> -->
 
 ### ✍️ Trip Planner Form
 *(Insert Planner Form screenshot here)*
-<!-- <img src="/path/to/planner-form.png" width="800" alt="Voyagr Trip Planner Form" /> -->
+<!-- <img src="/path/to/planner-form.png" width="800" alt="Trip AI Trip Planner Form" /> -->
 
 ### 💬 Atlas AI Chat Concierge & Itinerary
 *(Insert Chat Concierge screenshot here)*
@@ -26,7 +26,7 @@ Here are some visual showcases of the Voyagr user interface:
 
 ## ⚙️ Getting Started (Local Development)
 
-Follow these steps to clone the repository and run Voyagr on your local machine.
+Follow these steps to clone the repository and run Trip AI on your local machine.
 
 ### Prerequisites
 Make sure you have **Node.js** (v18+) and **npm** installed on your system.
@@ -51,7 +51,7 @@ Create a file named `.env` in the root directory of the project and populate it 
 PORT=5000
 
 # MongoDB connection URI (using local MongoDB or MongoDB Atlas)
-MONGODB_URI=mongodb://localhost:27017/voyagr
+MONGODB_URI=mongodb://localhost:27017/tripai
 
 # JWT authentication secret (a secure random string)
 JWT_SECRET=your_jwt_secret_key_here

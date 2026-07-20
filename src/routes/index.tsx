@@ -296,12 +296,12 @@ function LandingPage() {
         itinerary,
       };
 
-      sessionStorage.setItem("voyagr:current", JSON.stringify(newTrip));
+      sessionStorage.setItem("tripai:current", JSON.stringify(newTrip));
 
       // Save locally
-      const saved = JSON.parse(localStorage.getItem("voyagr:saved") || "[]");
+      const saved = JSON.parse(localStorage.getItem("tripai:saved") || "[]");
       saved.unshift(newTrip);
-      localStorage.setItem("voyagr:saved", JSON.stringify(saved));
+      localStorage.setItem("tripai:saved", JSON.stringify(saved));
       toast.success("Itinerary generated successfully!");
 
       navigate({ to: "/itinerary" });
@@ -316,7 +316,7 @@ function LandingPage() {
         input: modalForm,
         itinerary: `## 🏕️ Custom Trip to ${modalForm.destination}\nGenerated locally.`,
       };
-      sessionStorage.setItem("voyagr:current", JSON.stringify(fallbackTrip));
+      sessionStorage.setItem("tripai:current", JSON.stringify(fallbackTrip));
       navigate({ to: "/itinerary" });
     } finally {
       setModalLoading(false);
@@ -746,7 +746,7 @@ function LandingPage() {
               { name: "Maldives", country: "Tropical Islands", price: "14,800", stars: "4.9 (1.2k)", season: "Dry", tag: "Luxury", img: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=350&q=70" },
               { name: "Shimla", country: "Himachal Pradesh", price: "5,800", stars: "4.7 (2.1k)", season: "Winter", tag: "", img: "https://images.unsplash.com/photo-1597075687490-8f673c6c17f6?auto=format&fit=crop&w=350&q=70" },
               { name: "Paris", country: "France", price: "24,500", stars: "4.8 (3.4k)", season: "Spring", tag: "Romantic", img: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=350&q=70" },
-              { name: "Tokyo", country: "Japan", price: "18,900", stars: "4.9 (2.8k)", season: "Spring", tag: "Trending", img: "https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=350&q=70" }
+              { name: "Tokyo", country: "Japan", price: "18,900", stars: "4.9 (2.8k)", season: "Spring", tag: "Trending", img: "https://plus.unsplash.com/premium_photo-1661914240950-b0124f20a5c1?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dG9reW98ZW58MHx8MHx8fDA%3D" }
             ].concat([
               { name: "Manali", country: "Himachal Pradesh", price: "6,200", stars: "4.9 (2.5k)", season: "Winter", tag: "Best Seller", img: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=350&q=70" },
               { name: "Goa", country: "India", price: "4,500", stars: "4.8 (1.8k)", season: "Winter", tag: "", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=350&q=70" },
@@ -756,7 +756,7 @@ function LandingPage() {
               { name: "Maldives", country: "Tropical Islands", price: "14,800", stars: "4.9 (1.2k)", season: "Dry", tag: "Luxury", img: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=350&q=70" },
               { name: "Shimla", country: "Himachal Pradesh", price: "5,800", stars: "4.7 (2.1k)", season: "Winter", tag: "", img: "https://images.unsplash.com/photo-1597075687490-8f673c6c17f6?auto=format&fit=crop&w=350&q=70" },
               { name: "Paris", country: "France", price: "24,500", stars: "4.8 (3.4k)", season: "Spring", tag: "Romantic", img: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=350&q=70" },
-              { name: "Tokyo", country: "Japan", price: "18,900", stars: "4.9 (2.8k)", season: "Spring", tag: "Trending", img: "https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=350&q=70" }
+              { name: "Tokyo", country: "Japan", price: "18,900", stars: "4.9 (2.8k)", season: "Spring", tag: "Trending", img: "https://plus.unsplash.com/premium_photo-1661914240950-b0124f20a5c1?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dG9reW98ZW58MHx8MHx8fDA%3D" }
             ]).map((d, i) => (
               <article
                 key={i}
@@ -848,9 +848,9 @@ function LandingPage() {
 
           {/* Suitcase Image */}
           <div className="relative flex justify-center items-center">
-            <img 
-              src="/suitcase.png" 
-              alt="Suitcase and Travel Equipment" 
+            <img
+              src="/suitcase.png"
+              alt="Suitcase and Travel Equipment"
               className="h-96 md:h-[440px] object-contain relative z-10 select-none"
             />
           </div>
@@ -872,7 +872,7 @@ function LandingPage() {
               </span>
             </Link>
             <p className="text-[15px] text-[#94A3B8] max-w-xs leading-relaxed">
-              Voyagr (Trip AI) is a premium, AI-powered travel concierge and planner. Plan your dream trip in seconds.
+              Trip AI is a premium, AI-powered travel concierge and planner. Plan your dream trip in seconds.
             </p>
             {/* Social mockup icons */}
             <div className="flex gap-4 pt-1">
@@ -1127,7 +1127,7 @@ function DashboardPage() {
 
   // Pro Subscription States
   const [isProMember, setIsProMember] = useState<boolean>(() => {
-    return localStorage.getItem("voyagr:ispro") === "true";
+    return localStorage.getItem("tripai:ispro") === "true";
   });
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<"pricing" | "billing" | "success">("pricing");
@@ -1235,7 +1235,7 @@ function DashboardPage() {
 
   const [preferences, setPreferences] = useState(() => {
     try {
-      const saved = localStorage.getItem("voyagr:preferences");
+      const saved = localStorage.getItem("tripai:preferences");
       if (saved) return JSON.parse(saved);
     } catch { }
     return {
@@ -1250,8 +1250,8 @@ function DashboardPage() {
 
   const [apiKeys, setApiKeys] = useState(() => {
     return {
-      groq: localStorage.getItem("voyagr:key_groq") || "",
-      gemini: localStorage.getItem("voyagr:key_gemini") || "",
+      groq: localStorage.getItem("tripai:key_groq") || "",
+      gemini: localStorage.getItem("tripai:key_gemini") || "",
     };
   });
 
@@ -1385,7 +1385,7 @@ function DashboardPage() {
         itinerary,
       };
 
-      sessionStorage.setItem("voyagr:current", JSON.stringify(newTrip));
+      sessionStorage.setItem("tripai:current", JSON.stringify(newTrip));
 
       if (token) {
         try {
@@ -1402,9 +1402,9 @@ function DashboardPage() {
           toast.info("Generated trip saved locally");
         }
       } else {
-        const saved = JSON.parse(localStorage.getItem("voyagr:saved") || "[]");
+        const saved = JSON.parse(localStorage.getItem("tripai:saved") || "[]");
         saved.unshift(newTrip);
-        localStorage.setItem("voyagr:saved", JSON.stringify(saved));
+        localStorage.setItem("tripai:saved", JSON.stringify(saved));
         toast.success("Itinerary generated successfully!");
       }
 
@@ -1478,14 +1478,14 @@ function DashboardPage() {
 
   const handleSavePreferences = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem("voyagr:preferences", JSON.stringify(preferences));
+    localStorage.setItem("tripai:preferences", JSON.stringify(preferences));
     toast.success("Travel preferences updated! AI will apply this default context.");
   };
 
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem("voyagr:key_groq", apiKeys.groq.trim());
-    localStorage.setItem("voyagr:key_gemini", apiKeys.gemini.trim());
+    localStorage.setItem("tripai:key_groq", apiKeys.groq.trim());
+    localStorage.setItem("tripai:key_gemini", apiKeys.gemini.trim());
     toast.success("Settings & API keys saved successfully.");
   };
 
@@ -1499,7 +1499,7 @@ function DashboardPage() {
     setTimeout(() => {
       setPaying(false);
       setIsProMember(true);
-      localStorage.setItem("voyagr:ispro", "true");
+      localStorage.setItem("tripai:ispro", "true");
       setCheckoutStep("success");
       toast.success("Welcome to Trip AI Pro!");
     }, 2000);
@@ -1561,7 +1561,7 @@ function DashboardPage() {
   };
 
   const handleViewTrip = (trip: SavedTrip) => {
-    sessionStorage.setItem("voyagr:current", JSON.stringify(trip));
+    sessionStorage.setItem("tripai:current", JSON.stringify(trip));
     navigate({ to: "/itinerary" });
   };
 
@@ -2555,7 +2555,7 @@ function DashboardPage() {
                     <button disabled className="w-full mt-4 rounded-xl border border-white/10 text-muted-foreground text-xs font-bold py-2 bg-transparent opacity-60">Current</button>
                   </div>
                   <div className="p-5 rounded-2xl border border-yellow-500/20 bg-gradient-to-br from-yellow-500/10 to-amber-500/5 flex flex-col justify-between h-[200px] relative">
-                    <div><h4 className="text-xs font-bold text-yellow-400 uppercase">Voyagr Pro</h4><div className="text-lg font-black text-foreground mt-2">₹499 <span className="text-[10px] text-muted-foreground">/ year</span></div></div>
+                    <div><h4 className="text-xs font-bold text-yellow-400 uppercase">Trip AI Pro</h4><div className="text-lg font-black text-foreground mt-2">₹499 <span className="text-[10px] text-muted-foreground">/ year</span></div></div>
                     <button onClick={() => setCheckoutStep("billing")} className="w-full mt-4 rounded-xl bg-yellow-500 hover:brightness-110 text-neutral-950 text-xs font-black py-2 transition-all cursor-pointer">Subscribe</button>
                   </div>
                 </div>

@@ -17,7 +17,7 @@ export const Route = createFileRoute("/saved")({
   component: SavedPage,
 });
 
-const KEY = "voyagr:saved";
+const KEY = "tripai:saved";
 
 function SavedPage() {
   const [trips, setTrips] = useState<SavedTrip[]>([]);
@@ -85,7 +85,7 @@ function SavedPage() {
   };
 
   const open = (t: SavedTrip) => {
-    sessionStorage.setItem("voyagr:current", JSON.stringify(t));
+    sessionStorage.setItem("tripai:current", JSON.stringify(t));
     navigate({ to: "/itinerary" });
   };
 
