@@ -1224,14 +1224,18 @@ function DashboardPage() {
 
   const [heroFrom, setHeroFrom] = useState("");
   const [heroTo, setHeroTo] = useState("");
-  const [heroDates, setHeroDates] = useState("2026-05-20 - 2026-05-24");
+  const [heroStartDate, setHeroStartDate] = useState("");
+  const [heroEndDate, setHeroEndDate] = useState("");
+  const [heroDates, setHeroDates] = useState("");
   const [heroTravelers, setHeroTravelers] = useState(2);
+  const [calendarMonth, setCalendarMonth] = useState("2026-05");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
 
   const [profileName, setProfileName] = useState(user?.name || "Ak");
   const [profileEmail, setProfileEmail] = useState(user?.email || "ak@tripai.com");
+  const [profilePic, setProfilePic] = useState(() => localStorage.getItem("tripai:profile_pic") || "");
 
   const [preferences, setPreferences] = useState(() => {
     try {
@@ -1275,7 +1279,7 @@ function DashboardPage() {
     {
       id: "bot-init",
       sender: "bot",
-      text: `Hi Ak! 👋 I can help you plan your trips, find the best options, manage your bookings, and more. What would you like to do today?`,
+      text: `Hi Traveler! 👋 I can help you plan your trips, find the best options, manage your bookings, and more. What would you like to do today?`,
     },
   ]);
   const [chatInput, setChatInput] = useState("");
@@ -1310,19 +1314,18 @@ function DashboardPage() {
       })
         .then((res) => (res.ok ? res.json() : Promise.reject()))
         .then((data: SavedTrip[]) => {
-          const uniqueBackend = data.filter(
-            (bt) => !MOCK_SAVED_TRIPS.some((mt) => mt.input.destination === bt.input.destination)
-          );
-          setSavedTrips([...uniqueBackend, ...MOCK_SAVED_TRIPS]);
+          setSavedTrips(data);
         })
         .catch(() => {
-          setSavedTrips(MOCK_SAVED_TRIPS);
+          const localSaved = JSON.parse(localStorage.getItem("tripai:saved") || "[]");
+          setSavedTrips(localSaved);
         })
         .finally(() => {
           setLoadingTrips(false);
         });
     } else {
-      setSavedTrips(MOCK_SAVED_TRIPS);
+      const localSaved = JSON.parse(localStorage.getItem("tripai:saved") || "[]");
+      setSavedTrips(localSaved);
       setLoadingTrips(false);
     }
   }, [token]);
@@ -1331,24 +1334,80 @@ function DashboardPage() {
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    if (user) {
+      setProfileName(user.name);
+      setProfileEmail(user.email);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const name = user?.name || profileName || "Traveler";
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === "bot-init"
+          ? {
+              ...m,
+              text: `Hi ${name}! 👋 I can help you plan your trips, find the best options, manage your bookings, and more. What would you like to do today?`,
+            }
+          : m
+      )
+    );
+  }, [user?.name, profileName]);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxDim = 256;
+        let w = img.width;
+        let h = img.height;
+        if (w > h) {
+          if (w > maxDim) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          }
+        } else {
+          if (h > maxDim) {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+          setProfilePic(dataUrl);
+          toast.success("Avatar loaded from device successfully!");
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleHeroPlan = (e: React.FormEvent) => {
     e.preventDefault();
-    let start = "2026-05-20";
-    let end = "2026-05-24";
-    if (heroDates.includes(" - ")) {
-      const parts = heroDates.split(" - ");
-      start = parts[0]?.trim();
-      end = parts[1]?.trim();
+    if (!heroStartDate || !heroEndDate) {
+      toast.error("Please select both start and end dates");
+      return;
     }
-    const calculatedDays = daysBetween(start, end);
+    const calculatedDays = daysBetween(heroStartDate, heroEndDate);
     setModalForm({
       from: heroFrom,
       destination: heroTo,
       budget: heroTo.toLowerCase() === "ranchi" ? 10000 : 25000,
       currency: preferences.currency,
       travelers: heroTravelers,
-      startDate: start,
-      endDate: end,
+      startDate: heroStartDate,
+      endDate: heroEndDate,
       days: calculatedDays,
       style: preferences.style,
       interests: ["Nature", "Adventure"],
@@ -1358,7 +1417,27 @@ function DashboardPage() {
     });
     setIsModalOpen(true);
   };
+  const handleDeleteTrip = async (id: string) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`/api/trips/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Failed to delete trip on backend");
 
+      setSavedTrips((prev) => prev.filter((t) => t.id !== id));
+      toast.success("Trip removed");
+    } catch (err) {
+      console.warn("Failed backend delete, removing locally:", err);
+      const next = savedTrips.filter((t) => t.id !== id);
+      setSavedTrips(next);
+      localStorage.setItem("tripai:saved", JSON.stringify(next));
+      toast.success("Trip removed (local)");
+    }
+  };
   const handleModalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setModalLoading(true);
@@ -1575,7 +1654,7 @@ function DashboardPage() {
   });
 
   return (
-    <div className={`relative min-h-screen bg-[#080912] text-foreground flex ${isDarkMode ? "dark" : ""}`}>
+    <div className={`relative h-screen bg-[#080912] text-foreground flex overflow-hidden ${isDarkMode ? "dark" : ""}`}>
       <div className="glow-orb glow-orb-primary top-[-100px] left-[-50px] size-[500px]" />
       <div className="glow-orb glow-orb-secondary bottom-[-200px] right-[-100px] size-[600px]" />
 
@@ -1607,6 +1686,7 @@ function DashboardPage() {
             { name: "Calendar", icon: Calendar },
             { name: "Documents", icon: FileText },
             { name: "Preferences", icon: Sliders },
+            { name: "Saved Trips", icon: Bookmark },
           ].map((item) => (
             <button
               key={item.name}
@@ -1620,13 +1700,6 @@ function DashboardPage() {
               {item.name}
             </button>
           ))}
-          <Link
-            to="/saved"
-            className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-white/5"
-          >
-            <Bookmark className="size-4.5" />
-            Saved Trips
-          </Link>
         </nav>
 
         <div className="px-4 py-4">
@@ -1754,8 +1827,21 @@ function DashboardPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => {
-                setHeroFrom("Musabani");
-                setHeroTo("Ranchi");
+                setModalForm({
+                  from: heroFrom,
+                  destination: heroTo,
+                  budget: 10000,
+                  currency: preferences.currency,
+                  travelers: heroTravelers,
+                  startDate: heroStartDate,
+                  endDate: heroEndDate,
+                  days: heroStartDate && heroEndDate ? daysBetween(heroStartDate, heroEndDate) : 5,
+                  style: preferences.style,
+                  interests: ["Nature"],
+                  accommodation: preferences.accommodation,
+                  transport: preferences.transport,
+                  notes: "",
+                });
                 setIsModalOpen(true);
               }}
               className="flex items-center gap-2 rounded-xl bg-[image:var(--gradient-hero)] text-white text-xs font-black px-4 py-2.5 shadow-glow hover:brightness-110 transition-all duration-300 shrink-0 cursor-pointer"
@@ -1772,12 +1858,18 @@ function DashboardPage() {
             </button>
 
             <div className="flex items-center gap-2.5 pl-2 border-l border-white/10">
-              <div className="shrink-0 overflow-hidden rounded-full border border-primary/30 size-9 bg-card">
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80"
-                  alt="Profile"
-                  className="size-full object-cover"
-                />
+              <div className="shrink-0 overflow-hidden rounded-full border border-primary/30 size-9 bg-primary/10 flex items-center justify-center text-primary select-none">
+                {profilePic ? (
+                  <img
+                    src={profilePic}
+                    alt="Profile"
+                    className="size-full object-cover"
+                  />
+                ) : (
+                  <span className="text-[10px] font-black tracking-wider uppercase font-outfit">
+                    {profileName.trim().slice(0, 2).toUpperCase()}
+                  </span>
+                )}
               </div>
               <div className="hidden sm:flex flex-col text-left leading-tight max-w-[120px]">
                 <span className="text-xs font-bold text-foreground flex items-center gap-1 truncate">
@@ -1848,31 +1940,54 @@ function DashboardPage() {
                       <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                         <Calendar className="size-2 text-accent-foreground" /> Dates
                       </span>
-                      <input
-                        type="text"
-                        required
-                        value={heroDates}
-                        onChange={(e) => setHeroDates(e.target.value)}
-                        placeholder="20 May – 24 May"
-                        className="w-full bg-transparent text-xs text-foreground font-semibold placeholder:text-muted-foreground focus:outline-none mt-0.5"
-                      />
+                      <div className="flex gap-2 items-center mt-0.5">
+                        <input
+                          type="date"
+                          required
+                          value={heroStartDate}
+                          onChange={(e) => {
+                            setHeroStartDate(e.target.value);
+                            setHeroDates(`${e.target.value} - ${heroEndDate}`);
+                          }}
+                          className="bg-transparent text-xs text-foreground font-semibold focus:outline-none cursor-pointer w-[95px] [color-scheme:dark]"
+                        />
+                        <span className="text-[10px] text-muted-foreground">-</span>
+                        <input
+                          type="date"
+                          required
+                          value={heroEndDate}
+                          onChange={(e) => {
+                            setHeroEndDate(e.target.value);
+                            setHeroDates(`${heroStartDate} - ${e.target.value}`);
+                          }}
+                          className="bg-transparent text-xs text-foreground font-semibold focus:outline-none cursor-pointer w-[95px] [color-scheme:dark]"
+                        />
+                      </div>
                     </div>
 
                     <div className="flex flex-col text-left px-3 py-1 bg-white/[0.02] border border-white/5 rounded-xl col-span-2 md:col-span-1">
                       <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                         <Users className="size-2 text-primary" /> Travelers
                       </span>
-                      <select
-                        value={heroTravelers}
-                        onChange={(e) => setHeroTravelers(Number(e.target.value))}
-                        className="w-full bg-transparent text-xs text-foreground font-semibold focus:outline-none mt-0.5 cursor-pointer border-none p-0"
-                      >
-                        <option value={1} className="bg-[#0f1122]">1 Traveler</option>
-                        <option value={2} className="bg-[#0f1122]">2 Travelers</option>
-                        <option value={3} className="bg-[#0f1122]">3 Travelers</option>
-                        <option value={4} className="bg-[#0f1122]">4 Travelers</option>
-                        <option value={5} className="bg-[#0f1122]">5+ Travelers</option>
-                      </select>
+                      <div className="flex items-center gap-2 mt-1 select-none">
+                        <button
+                          type="button"
+                          onClick={() => setHeroTravelers((prev) => Math.max(1, prev - 1))}
+                          className="size-5 rounded bg-white/10 hover:bg-white/20 text-white font-bold text-[10px] flex items-center justify-center transition-colors cursor-pointer"
+                        >
+                          -
+                        </button>
+                        <span className="text-xs text-foreground font-bold min-w-[70px] text-center">
+                          {heroTravelers} {heroTravelers === 1 ? "Traveler" : "Travelers"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setHeroTravelers((prev) => prev + 1)}
+                          className="size-5 rounded bg-white/10 hover:bg-white/20 text-white font-bold text-[10px] flex items-center justify-center transition-colors cursor-pointer"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
 
                     <button
@@ -1910,9 +2025,9 @@ function DashboardPage() {
                 <div className="xl:col-span-2 space-y-4 flex flex-col">
                   <div className="flex items-center justify-between border-b border-white/5 pb-2 select-none">
                     <h3 className="text-lg font-bold text-foreground tracking-tight">Your Saved Trips</h3>
-                    <Link to="/saved" className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
+                    <button onClick={() => setActiveTab("Saved Trips")} className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 cursor-pointer">
                       View All <ChevronRight className="size-3" />
-                    </Link>
+                    </button>
                   </div>
 
                   {loadingTrips ? (
@@ -1923,7 +2038,9 @@ function DashboardPage() {
                   ) : filteredTrips.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-2xl bg-white/[0.01] border border-dashed border-white/10">
                       <Bookmark className="size-8 text-muted-foreground/55" />
-                      <p className="text-xs text-muted-foreground">No matching itineraries found.</p>
+                      <p className="text-xs text-muted-foreground">
+                        {searchQuery ? "No matching itineraries found." : "No saved trips yet. Start by planning a new adventure above!"}
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -2176,6 +2293,81 @@ function DashboardPage() {
                   Plan Your Next Trip <ArrowRight className="size-4" />
                 </button>
               </section>
+              {/* Dashboard Footer */}
+              <footer className="border-t border-white/5 bg-[#0a0c16]/30 py-12 text-left select-none mt-12 shrink-0 rounded-3xl w-full">
+                <div className="px-6 grid grid-cols-2 md:grid-cols-6 gap-8 pb-8 border-b border-white/5 font-outfit">
+                  {/* Logo brand block */}
+                  <div className="col-span-2 space-y-4">
+                    <Link to="/" className="group flex items-center gap-3">
+                      <div className="shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white p-1 shadow-md">
+                        <img src="/logo.png" alt="Trip AI Logo" className="size-8 object-contain" />
+                      </div>
+                      <span className="text-md font-black tracking-tight text-white">
+                        Trip<span className="text-[#10B981]">AI</span>
+                      </span>
+                    </Link>
+                    <p className="text-[13px] text-[#94A3B8] max-w-xs leading-relaxed">
+                      Trip AI is a premium, AI-powered travel concierge and planner. Plan your dream trip in seconds.
+                    </p>
+                    {/* Social mockup icons */}
+                    <div className="flex gap-3 pt-1">
+                      {["instagram", "twitter", "youtube", "linkedin"].map((s) => (
+                        <span key={s} className="size-6 rounded-lg border border-white/10 hover:border-white/20 flex items-center justify-center text-[9px] font-black uppercase text-[#94A3B8] hover:text-white cursor-pointer transition-colors">
+                          {s.slice(0, 2)}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Column 1 */}
+                  <div className="space-y-4">
+                    <h4 className="text-[10px] font-black uppercase text-white tracking-widest">Product</h4>
+                    <ul className="text-[11px] text-[#94A3B8] space-y-2.5 font-semibold">
+                      <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+                      <li><a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a></li>
+                      <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
+                      <li><a href="#destinations" className="hover:text-white transition-colors">Destinations</a></li>
+                    </ul>
+                  </div>
+
+                  {/* Column 2 */}
+                  <div className="space-y-4">
+                    <h4 className="text-[10px] font-black uppercase text-white tracking-widest">Resources</h4>
+                    <ul className="text-[11px] text-[#94A3B8] space-y-2.5 font-semibold">
+                      <li><span className="hover:text-white transition-colors cursor-pointer">Blog</span></li>
+                      <li><span className="hover:text-white transition-colors cursor-pointer">Travel Guides</span></li>
+                      <li><span className="hover:text-white transition-colors cursor-pointer">FAQs</span></li>
+                      <li><span className="hover:text-white transition-colors cursor-pointer">Support Center</span></li>
+                    </ul>
+                  </div>
+
+                  {/* Column 3 */}
+                  <div className="space-y-4">
+                    <h4 className="text-[10px] font-black uppercase text-white tracking-widest">Company</h4>
+                    <ul className="text-[11px] text-[#94A3B8] space-y-2.5 font-semibold">
+                      <li><span className="hover:text-white transition-colors cursor-pointer">About Us</span></li>
+                      <li><span className="hover:text-white transition-colors cursor-pointer">Careers</span></li>
+                      <li><span className="hover:text-white transition-colors cursor-pointer">Press</span></li>
+                      <li><span className="hover:text-white transition-colors cursor-pointer">Contact Us</span></li>
+                    </ul>
+                  </div>
+
+                  {/* Column 4 */}
+                  <div className="space-y-4">
+                    <h4 className="text-[10px] font-black uppercase text-white tracking-widest">Legal</h4>
+                    <ul className="text-[11px] text-[#94A3B8] space-y-2.5 font-semibold">
+                      <li><span className="hover:text-white transition-colors cursor-pointer">Privacy Policy</span></li>
+                      <li><span className="hover:text-white transition-colors cursor-pointer">Terms of Service</span></li>
+                      <li><span className="hover:text-white transition-colors cursor-pointer">Cookies Policy</span></li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="px-6 pt-6 flex flex-col sm:flex-row items-center justify-between text-[10px] text-[#94A3B8] font-bold">
+                  <span>© {new Date().getFullYear()} TripAI. All rights reserved.</span>
+                  <span className="mt-2 sm:mt-0">Made with ❤️ for curious travelers worldwide.</span>
+                </div>
+              </footer>
             </>
           )}
 
@@ -2225,46 +2417,119 @@ function DashboardPage() {
             </div>
           )}
 
-          {activeTab === "Calendar" && (
-            <div className="space-y-6 text-left max-w-4xl select-none">
-              <div>
-                <h2 className="text-xl font-black text-foreground">Travel Calendar</h2>
-                <p className="text-xs text-muted-foreground mt-1">Timeline of your upcoming trips and draft schedules.</p>
-              </div>
-              <div className="rounded-3xl border border-white/5 bg-[#0a0c16]/50 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-bold text-foreground">May 2026</h3>
-                  <div className="flex gap-4 text-[10px] text-muted-foreground font-bold">
-                    <span className="flex items-center gap-1.5"><span className="size-2 rounded bg-primary" /> Ranchi (Confirmed)</span>
-                    <span className="flex items-center gap-1.5"><span className="size-2 rounded bg-secondary" /> Manali (Saved)</span>
+          {activeTab === "Calendar" && (() => {
+            const [calYear, calMonthStr] = calendarMonth.split("-");
+            const calYearNum = Number(calYear);
+            const calMonthNum = Number(calMonthStr);
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const calMonthName = monthNames[calMonthNum - 1];
+
+            const daysInMonth = new Date(calYearNum, calMonthNum, 0).getDate();
+            const startDayOfWeek = new Date(calYearNum, calMonthNum - 1, 1).getDay();
+
+            const getTripForDay = (day: number) => {
+              const dateStr = `${calYearNum}-${calMonthStr}-${day.toString().padStart(2, "0")}`;
+              return savedTrips.find((t) => {
+                if (!t.input.startDate || !t.input.endDate) return false;
+                return dateStr >= t.input.startDate && dateStr <= t.input.endDate;
+              });
+            };
+
+            const activeTripsInMonth = savedTrips.filter((t) => {
+              if (!t.input.startDate) return false;
+              return t.input.startDate.startsWith(calendarMonth);
+            });
+
+            const prevMonth = () => {
+              const [y, m] = calendarMonth.split("-").map(Number);
+              const ny = m === 1 ? y - 1 : y;
+              const nm = m === 1 ? 12 : m - 1;
+              setCalendarMonth(`${ny}-${nm.toString().padStart(2, "0")}`);
+            };
+
+            const nextMonth = () => {
+              const [y, m] = calendarMonth.split("-").map(Number);
+              const ny = m === 12 ? y + 1 : y;
+              const nm = m === 12 ? 1 : m + 1;
+              setCalendarMonth(`${ny}-${nm.toString().padStart(2, "0")}`);
+            };
+
+            return (
+              <div className="space-y-6 text-left max-w-4xl select-none">
+                <div>
+                  <h2 className="text-xl font-black text-foreground">Travel Calendar</h2>
+                  <p className="text-xs text-muted-foreground mt-1">Timeline of your upcoming trips and draft schedules.</p>
+                </div>
+                <div className="rounded-3xl border border-white/5 bg-[#0a0c16]/50 p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <button 
+                        type="button" 
+                        onClick={prevMonth} 
+                        className="size-7 rounded-lg border border-white/10 hover:border-white/20 hover:bg-white/5 text-white flex items-center justify-center cursor-pointer transition-colors"
+                      >
+                        &lt;
+                      </button>
+                      <h3 className="text-sm font-bold text-foreground min-w-[90px] text-center font-outfit">{calMonthName} {calYearNum}</h3>
+                      <button 
+                        type="button" 
+                        onClick={nextMonth} 
+                        className="size-7 rounded-lg border border-white/10 hover:border-white/20 hover:bg-white/5 text-white flex items-center justify-center cursor-pointer transition-colors"
+                      >
+                        &gt;
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-4 text-[10px] text-muted-foreground font-bold">
+                      {activeTripsInMonth.length === 0 ? (
+                        <span>No trips scheduled this month</span>
+                      ) : (
+                        activeTripsInMonth.map((t, idx) => (
+                          <span key={t.id} className="flex items-center gap-1.5">
+                            <span className={`size-2 rounded ${idx % 2 === 0 ? "bg-primary" : "bg-secondary"}`} />
+                            {t.input.destination} ({t.input.days} Days)
+                          </span>
+                        ))
+                      )}
+                    </div>
                   </div>
+                  <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-muted-foreground uppercase border-b border-white/5 pb-2">
+                    <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                  </div>
+                  <div className="grid grid-cols-7 gap-2 text-center mt-3 text-xs font-bold">
+                    {/* Render leading empty placeholders */}
+                    {Array.from({ length: startDayOfWeek }).map((_, i) => (
+                      <span key={`empty-${i}`} className="py-3 text-muted-foreground/10">—</span>
+                    ))}
+                    {/* Render actual days */}
+                    {Array.from({ length: daysInMonth }).map((_, idx) => {
+                      const day = idx + 1;
+                      const activeTrip = getTripForDay(day);
+                      let bgClass = "hover:bg-white/5 border border-transparent text-[#94A3B8]";
+                      if (activeTrip) {
+                        bgClass = "bg-primary/20 border border-primary/40 text-primary cursor-pointer shadow-[0_0_8px_rgba(104,117,245,0.15)]";
+                      }
+                      return (
+                        <div 
+                          key={day} 
+                          onMouseEnter={() => { 
+                            if (activeTrip) {
+                              setCalendarHover(`${activeTrip.input.from} to ${activeTrip.input.destination} (${activeTrip.input.days} Days): ${activeTrip.input.travelers} Travelers.`);
+                            } 
+                          }} 
+                          onMouseLeave={() => setCalendarHover(null)} 
+                          className={`py-3.5 rounded-xl transition-all relative ${bgClass}`}
+                        >
+                          {day}
+                          {activeTrip && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 size-1 rounded-full bg-primary" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {calendarHover && <div className="mt-5 p-3 rounded-xl border border-primary/20 bg-primary/10 text-xs font-semibold text-foreground text-center animate-in fade-in duration-200">ℹ️ {calendarHover}</div>}
                 </div>
-                <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-muted-foreground uppercase border-b border-white/5 pb-2">
-                  <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-                </div>
-                <div className="grid grid-cols-7 gap-2 text-center mt-3 text-xs font-bold">
-                  <span className="py-3 text-muted-foreground/30">26</span><span className="py-3 text-muted-foreground/30">27</span><span className="py-3 text-muted-foreground/30">28</span><span className="py-3 text-muted-foreground/30">29</span><span className="py-3 text-muted-foreground/30">30</span>
-                  {Array.from({ length: 31 }).map((_, idx) => {
-                    const day = idx + 1;
-                    const isRanchi = day >= 20 && day <= 24;
-                    const isManali = day >= 10 && day <= 16;
-                    let bgClass = "hover:bg-white/5 border border-transparent";
-                    if (isRanchi) bgClass = "bg-primary/20 border border-primary/40 text-primary cursor-pointer shadow-[0_0_8px_rgba(104,117,245,0.15)]";
-                    else if (isManali) bgClass = "bg-secondary/20 border border-secondary/40 text-secondary cursor-pointer";
-                    return (
-                      <div key={day} onMouseEnter={() => { if (isRanchi) setCalendarHover("Ranchi Getaway (20-24 May): 2 Travelers."); if (isManali) setCalendarHover("Manali Trip Plan (10-16 Jun): Family plan."); }} onMouseLeave={() => setCalendarHover(null)} className={`py-3.5 rounded-xl transition-all relative ${bgClass}`}>
-                        {day}
-                        {isRanchi && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 size-1 rounded-full bg-primary" />}
-                        {isManali && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 size-1 rounded-full bg-secondary" />}
-                      </div>
-                    );
-                  })}
-                  <span className="py-3 text-muted-foreground/30">1</span><span className="py-3 text-muted-foreground/30">2</span><span className="py-3 text-muted-foreground/30">3</span>
-                </div>
-                {calendarHover && <div className="mt-5 p-3 rounded-xl border border-primary/20 bg-primary/10 text-xs font-semibold text-foreground text-center animate-in fade-in duration-200">ℹ️ {calendarHover}</div>}
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {activeTab === "Documents" && (
             <div className="space-y-6 text-left max-w-4xl">
@@ -2372,29 +2637,137 @@ function DashboardPage() {
             <div className="space-y-6 text-left max-w-2xl select-none">
               <div>
                 <h2 className="text-xl font-black text-foreground font-outfit">Account Settings</h2>
-                <p className="text-xs text-muted-foreground mt-1">Configure profile and client custom API tokens.</p>
+                <p className="text-xs text-muted-foreground mt-1">Configure Display details and upload profile photos.</p>
               </div>
-              <form onSubmit={(e) => { e.preventDefault(); toast.success("Profile parameters updated!"); }} className="rounded-3xl border border-white/5 bg-[#0a0c16]/50 p-6 space-y-4">
+              <form onSubmit={(e) => { e.preventDefault(); localStorage.setItem("tripai:profile_pic", profilePic); toast.success("Profile parameters updated!"); }} className="rounded-3xl border border-white/5 bg-[#0a0c16]/50 p-6 space-y-4">
                 <h3 className="text-xs font-black text-foreground uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-2.5 mb-2.5"><UserCheck className="size-4 text-primary" /> Profile Details</h3>
+                <div className="flex flex-col md:flex-row gap-6 items-center border-b border-white/5 pb-4 mb-4">
+                  <div className="shrink-0 overflow-hidden rounded-full border border-primary/30 size-20 bg-primary/10 flex items-center justify-center text-primary select-none text-2xl font-black font-outfit">
+                    {profilePic ? (
+                      <img
+                        src={profilePic}
+                        alt="Profile Preview"
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      profileName.trim().slice(0, 2).toUpperCase()
+                    )}
+                  </div>
+                  <div className="flex-1 flex flex-col text-left gap-2">
+                    <span className="text-xs font-bold text-foreground">Profile Picture</span>
+                    <span className="text-[10px] text-muted-foreground">Upload a photo directly from your device (PNG or JPG) or paste an image URL.</span>
+                    <div className="flex items-center gap-3 mt-1">
+                      <label className="rounded-xl bg-primary hover:brightness-110 text-white text-xs font-bold px-4 py-2 cursor-pointer transition-all flex items-center gap-1.5 shadow-glow select-none">
+                        <UploadCloud className="size-3.5" /> Upload File
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      {profilePic && (
+                        <button
+                          type="button"
+                          onClick={() => setProfilePic("")}
+                          className="rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold px-4 py-2 cursor-pointer transition-colors text-muted-foreground hover:text-foreground"
+                        >
+                          Remove Photo
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col">
+                  <div className="flex flex-col col-span-2 md:col-span-1">
                     <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1.5">Display Name</label>
                     <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} className="bg-white/[0.03] border border-white/5 rounded-xl px-3 py-2.5 text-xs text-foreground focus:outline-none focus:border-primary/40 focus:bg-white/[0.05]" />
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col col-span-2 md:col-span-1">
                     <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1.5">Email Address</label>
                     <input type="email" value={profileEmail} onChange={(e) => setProfileEmail(e.target.value)} className="bg-white/[0.03] border border-white/5 rounded-xl px-3 py-2.5 text-xs text-foreground focus:outline-none focus:border-primary/40 focus:bg-white/[0.05]" />
+                  </div>
+                  <div className="flex flex-col col-span-2">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1.5">Profile Picture URL</label>
+                    <input type="text" placeholder="Paste an Unsplash or direct image URL (e.g. https://images.unsplash.com/...)" value={profilePic} onChange={(e) => setProfilePic(e.target.value)} className="bg-white/[0.03] border border-white/5 rounded-xl px-3 py-2.5 text-xs text-foreground focus:outline-none focus:border-primary/40 focus:bg-white/[0.05]" />
                   </div>
                 </div>
                 <button type="submit" className="rounded-xl bg-white/5 hover:bg-white/10 text-foreground border border-white/10 text-xs font-extrabold px-6 py-2 transition-colors cursor-pointer">Save Details</button>
               </form>
+            </div>
+          )}
 
-              <form onSubmit={handleSaveSettings} className="rounded-3xl border border-white/5 bg-[#0a0c16]/50 p-6 space-y-4 mt-6">
-                <h3 className="text-xs font-black text-foreground uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-2.5 mb-2.5"><Key className="size-4 text-secondary" /> Custom API Keys</h3>
-                <div className="flex flex-col"><label className="text-[10px] font-bold text-muted-foreground uppercase mb-1.5">Groq API Key</label><input type="password" value={apiKeys.groq} onChange={(e) => setApiKeys((prev) => ({ ...prev, groq: e.target.value }))} placeholder="gsk_..." className="bg-white/[0.03] border border-white/5 rounded-xl px-3 py-2.5 text-xs text-foreground focus:outline-none" /></div>
-                <div className="flex flex-col"><label className="text-[10px] font-bold text-muted-foreground uppercase mb-1.5">Gemini API Key</label><input type="password" value={apiKeys.gemini} onChange={(e) => setApiKeys((prev) => ({ ...prev, gemini: e.target.value }))} placeholder="AIzaSy..." className="bg-white/[0.03] border border-white/5 rounded-xl px-3 py-2.5 text-xs text-foreground focus:outline-none" /></div>
-                <button type="submit" className="w-full rounded-xl bg-primary text-white text-xs font-extrabold py-2.5 shadow-glow hover:brightness-110 transition-all cursor-pointer">Save Credentials</button>
-              </form>
+          {activeTab === "Saved Trips" && (
+            <div className="space-y-6 text-left max-w-4xl select-none">
+              <div>
+                <h2 className="text-xl font-black text-foreground font-outfit">Saved Trips</h2>
+                <p className="text-xs text-muted-foreground mt-1 font-semibold">Your bookmarked itineraries, ready when you are.</p>
+              </div>
+
+              {savedTrips.length === 0 ? (
+                <div className="rounded-3xl border border-white/5 bg-[#0a0c16]/50 p-12 text-center select-none">
+                  <div className="grid size-12 place-items-center rounded-2xl bg-white/5 text-muted-foreground border border-white/5 mx-auto mb-4">
+                    <Plane className="size-6 -rotate-45" />
+                  </div>
+                  <div className="text-lg font-bold text-foreground">No saved trips yet</div>
+                  <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">
+                    Plan a trip on the Home tab and save it to sync your travels here.
+                  </p>
+                  <button
+                    className="mt-6 rounded-xl font-bold px-6 py-2.5 bg-[image:var(--gradient-hero)] shadow-glow text-white hover:brightness-110 cursor-pointer"
+                    onClick={() => setActiveTab("Home")}
+                  >
+                    Plan a trip
+                  </button>
+                </div>
+              ) : (
+                <div className="grid gap-6 sm:grid-cols-2">
+                  {savedTrips.map((t) => (
+                    <div
+                      key={t.id}
+                      className="relative overflow-hidden rounded-2xl border border-white/5 bg-[#0a0c16]/50 p-5 hover:border-white/10 transition-all duration-300 flex flex-col justify-between"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="space-y-1.5 min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary truncate">
+                            <MapPin className="size-3.5" /> {t.input.from} → {t.input.destination || "AI-picked"}
+                          </div>
+                          <div className="text-lg font-extrabold text-foreground truncate">
+                            {t.input.days} Days · {t.input.style}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
+                            <Calendar className="size-3.5 shrink-0" />
+                            <span className="truncate">
+                              {t.input.startDate && t.input.endDate
+                                ? `${t.input.startDate} → ${t.input.endDate}`
+                                : new Date(t.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <div className="text-sm font-semibold text-muted-foreground mt-1">
+                            Budget:{" "}
+                            <span className="text-foreground font-bold">
+                              {t.input.currency === "INR" ? "₹" : "$"}{t.input.budget.toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteTrip(t.id)}
+                          aria-label="Delete trip"
+                          className="rounded-full p-2 text-muted-foreground transition-all duration-300 hover:bg-destructive/15 hover:text-destructive border border-transparent hover:border-destructive/10 cursor-pointer"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => handleViewTrip(t)}
+                        className="mt-5 w-full rounded-xl py-2.5 font-bold bg-white/5 border border-white/10 hover:bg-white/10 text-foreground transition-all duration-300 cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        View Itinerary <ArrowRight className="size-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -2457,6 +2830,7 @@ function DashboardPage() {
               </div>
             </div>
           )}
+
         </main>
       </div>
 
@@ -2502,17 +2876,99 @@ function DashboardPage() {
               <h3 className="text-lg font-black text-foreground flex items-center gap-2"><Sparkles className="size-5 text-primary" /> Complete Your Plan</h3>
             </div>
             <form onSubmit={handleModalSubmit} className="space-y-4 text-left font-sans">
-              <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between text-xs font-bold text-foreground">
-                <div className="flex flex-col"><span className="text-[8px] text-muted-foreground uppercase">Departing</span><span>{modalForm.from}</span></div>
-                <ArrowRight className="size-4 text-primary" /><div className="flex flex-col text-right"><span className="text-[8px] text-muted-foreground uppercase">Destination</span><span>{modalForm.destination}</span></div>
+              <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-xs font-bold text-foreground">
+                <div className="flex flex-col text-left">
+                  <label className="text-[8px] text-muted-foreground uppercase mb-1">Departing From</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Departure"
+                    value={modalForm.from}
+                    onChange={(e) => setModalForm((prev) => ({ ...prev, from: e.target.value }))}
+                    className="bg-transparent text-xs text-foreground font-semibold placeholder:text-muted-foreground focus:outline-none w-full"
+                  />
+                </div>
+                <ArrowRight className="size-4 text-primary shrink-0" />
+                <div className="flex flex-col text-left">
+                  <label className="text-[8px] text-muted-foreground uppercase mb-1 text-right block">Destination</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Destination"
+                    value={modalForm.destination}
+                    onChange={(e) => setModalForm((prev) => ({ ...prev, destination: e.target.value }))}
+                    className="bg-transparent text-xs text-foreground font-semibold placeholder:text-muted-foreground focus:outline-none w-full text-right"
+                  />
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col text-xs font-bold text-foreground"><span className="text-[8px] text-muted-foreground uppercase">Duration</span><span>{modalForm.days} Days</span></div>
-                <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col text-xs font-bold text-foreground"><span className="text-[8px] text-muted-foreground uppercase">Travelers</span><span>{modalForm.travelers} Persons</span></div>
+                <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col text-left">
+                  <label className="text-[8px] text-muted-foreground uppercase mb-1">From Date</label>
+                  <input
+                    type="date"
+                    required
+                    value={modalForm.startDate}
+                    onChange={(e) => {
+                      const start = e.target.value;
+                      setModalForm((prev) => {
+                        const days = prev.endDate ? daysBetween(start, prev.endDate) : prev.days;
+                        return { ...prev, startDate: start, days };
+                      });
+                    }}
+                    className="bg-transparent text-xs text-foreground font-semibold focus:outline-none w-full cursor-pointer [color-scheme:dark]"
+                  />
+                </div>
+                <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col text-left">
+                  <label className="text-[8px] text-muted-foreground uppercase mb-1">To Date</label>
+                  <input
+                    type="date"
+                    required
+                    value={modalForm.endDate}
+                    onChange={(e) => {
+                      const end = e.target.value;
+                      setModalForm((prev) => {
+                        const days = prev.startDate ? daysBetween(prev.startDate, end) : prev.days;
+                        return { ...prev, endDate: end, days };
+                      });
+                    }}
+                    className="bg-transparent text-xs text-foreground font-semibold focus:outline-none w-full cursor-pointer [color-scheme:dark]"
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-3 gap-3 items-end">
-                <div className="col-span-2 flex flex-col"><label className="text-[10px] font-bold text-muted-foreground uppercase mb-1.5">Budget Limit</label><input type="number" value={modalForm.budget} onChange={(e) => setForm((prev: any) => ({ ...prev, budget: Number(e.target.value) }))} className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-3 py-2 text-xs text-foreground font-semibold" /></div>
-                <div className="flex flex-col"><label className="text-[10px] font-bold text-muted-foreground uppercase mb-1.5">Currency</label><select value={modalForm.currency} onChange={(e) => setModalForm((prev) => ({ ...prev, currency: e.target.value }))} className="w-full bg-[#0a0c16] border border-white/5 rounded-xl px-3 py-2.5 text-xs text-foreground cursor-pointer">{CURRENCY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}</select></div>
+              <div className="grid grid-cols-4 gap-3 items-end">
+                <div className="col-span-1 flex flex-col text-left">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1.5">Travelers</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={modalForm.travelers}
+                    onChange={(e) => setModalForm((prev) => ({ ...prev, travelers: Number(e.target.value) }))}
+                    className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-3 py-2 text-xs text-foreground font-semibold"
+                  />
+                </div>
+                <div className="col-span-2 flex flex-col text-left">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1.5">Budget Limit</label>
+                  <input
+                    type="number"
+                    value={modalForm.budget}
+                    onChange={(e) => setModalForm((prev: any) => ({ ...prev, budget: Number(e.target.value) }))}
+                    className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-3 py-2 text-xs text-foreground font-semibold"
+                  />
+                </div>
+                <div className="col-span-1 flex flex-col text-left">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1.5">Currency</label>
+                  <select
+                    value={modalForm.currency}
+                    onChange={(e) => setModalForm((prev) => ({ ...prev, currency: e.target.value }))}
+                    className="w-full bg-[#0a0c16] border border-white/5 rounded-xl px-3 py-2.5 text-xs text-foreground cursor-pointer"
+                  >
+                    {CURRENCY_OPTIONS.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col"><label className="text-[10px] font-bold text-muted-foreground uppercase mb-1.5">Lodging</label><select value={modalForm.accommodation} onChange={(e) => setModalForm((prev) => ({ ...prev, accommodation: e.target.value }))} className="w-full bg-[#0a0c16] border border-white/5 rounded-xl px-3 py-2.5 text-xs text-foreground cursor-pointer">{ACCOMMODATION_OPTIONS.map((a) => <option key={a} value={a}>{a}</option>)}</select></div>
