@@ -740,7 +740,7 @@ function LandingPage() {
             {[
               { name: "Manali", country: "Himachal Pradesh", price: "6,200", stars: "4.9 (2.5k)", season: "Winter", tag: "Best Seller", img: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=350&q=70" },
               { name: "Goa", country: "India", price: "4,500", stars: "4.8 (1.8k)", season: "Winter", tag: "", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=350&q=70" },
-              { name: "Kerala", country: "God's Own Country", price: "7,500", stars: "4.9 (2.5k)", season: "Monsoon", tag: "Popular", img: "https://plus.unsplash.com/premium_photo-1697729438401-fcb4ff66d9a8?w=1200&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8a2VyYWxhfGVufDB8fDB8fHww" },
+              { name: "Kerala", country: "God's Own Country", price: "7,500", stars: "4.9 (2.5k)", season: "Monsoon", tag: "Popular", img: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=2232&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
               { name: "Ladakh", country: "Jammu & Kashmir", price: "9,900", stars: "4.9 (1.6k)", season: "Summer", tag: "", img: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=350&q=70" },
               { name: "Bali", country: "Indonesia", price: "12,500", stars: "4.8 (1.4k)", season: "Dry", tag: "", img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=350&q=70" },
               { name: "Maldives", country: "Tropical Islands", price: "14,800", stars: "4.9 (1.2k)", season: "Dry", tag: "Luxury", img: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=350&q=70" },
@@ -750,7 +750,7 @@ function LandingPage() {
             ].concat([
               { name: "Manali", country: "Himachal Pradesh", price: "6,200", stars: "4.9 (2.5k)", season: "Winter", tag: "Best Seller", img: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=350&q=70" },
               { name: "Goa", country: "India", price: "4,500", stars: "4.8 (1.8k)", season: "Winter", tag: "", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=350&q=70" },
-              { name: "Kerala", country: "God's Own Country", price: "7,500", stars: "4.9 (2.5k)", season: "Monsoon", tag: "Popular", img: "https://plus.unsplash.com/premium_photo-1697729438401-fcb4ff66d9a8?w=1200&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8a2VyYWxhfGVufDB8fDB8fHww" },
+              { name: "Kerala", country: "God's Own Country", price: "7,500", stars: "4.9 (2.5k)", season: "Monsoon", tag: "Popular", img: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=2232&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
               { name: "Ladakh", country: "Jammu & Kashmir", price: "9,900", stars: "4.9 (1.6k)", season: "Summer", tag: "", img: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=350&q=70" },
               { name: "Bali", country: "Indonesia", price: "12,500", stars: "4.8 (1.4k)", season: "Dry", tag: "", img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=350&q=70" },
               { name: "Maldives", country: "Tropical Islands", price: "14,800", stars: "4.9 (1.2k)", season: "Dry", tag: "Luxury", img: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=350&q=70" },
@@ -1347,9 +1347,9 @@ function DashboardPage() {
       prev.map((m) =>
         m.id === "bot-init"
           ? {
-              ...m,
-              text: `Hi ${name}! 👋 I can help you plan your trips, find the best options, manage your bookings, and more. What would you like to do today?`,
-            }
+            ...m,
+            text: `Hi ${name}! 👋 I can help you plan your trips, find the best options, manage your bookings, and more. What would you like to do today?`,
+          }
           : m
       )
     );
@@ -2169,7 +2169,7 @@ function DashboardPage() {
                   {[
                     { name: "Manali", desc: "Himachal Pradesh", price: "12,500", img: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=300&q=70" },
                     { name: "Goa", desc: "Beach Paradise", price: "8,200", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=70" },
-                    { name: "Kerala", desc: "God's Own Country", price: "9,800", img: "https://images.unsplash.com/photo-1596761301588-915ccaec3e83?auto=format&fit=crop&w=300&q=70" },
+                    { name: "Kerala", desc: "God's Own Country", price: "9,800", img: "https://plus.unsplash.com/premium_photo-1697729438401-fcb4ff66d9a8?w=1200&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8a2VyYWxhfGVufDB8fDB8fHww" },
                     { name: "Ladakh", desc: "Land of High Passes", price: "15,900", img: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=300&q=70" },
                   ].map((d) => (
                     <article key={d.name} onClick={() => { setHeroTo(d.name); toast.success(`Selected destination: ${d.name}`); }} className="group cursor-pointer relative overflow-hidden rounded-2xl border border-white/5 bg-card/25 shadow-xl transition-all duration-500 hover:border-primary/30 hover:shadow-glow hover:-translate-y-1">
@@ -2463,17 +2463,17 @@ function DashboardPage() {
                 <div className="rounded-3xl border border-white/5 bg-[#0a0c16]/50 p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                      <button 
-                        type="button" 
-                        onClick={prevMonth} 
+                      <button
+                        type="button"
+                        onClick={prevMonth}
                         className="size-7 rounded-lg border border-white/10 hover:border-white/20 hover:bg-white/5 text-white flex items-center justify-center cursor-pointer transition-colors"
                       >
                         &lt;
                       </button>
                       <h3 className="text-sm font-bold text-foreground min-w-[90px] text-center font-outfit">{calMonthName} {calYearNum}</h3>
-                      <button 
-                        type="button" 
-                        onClick={nextMonth} 
+                      <button
+                        type="button"
+                        onClick={nextMonth}
                         className="size-7 rounded-lg border border-white/10 hover:border-white/20 hover:bg-white/5 text-white flex items-center justify-center cursor-pointer transition-colors"
                       >
                         &gt;
@@ -2509,14 +2509,14 @@ function DashboardPage() {
                         bgClass = "bg-primary/20 border border-primary/40 text-primary cursor-pointer shadow-[0_0_8px_rgba(104,117,245,0.15)]";
                       }
                       return (
-                        <div 
-                          key={day} 
-                          onMouseEnter={() => { 
+                        <div
+                          key={day}
+                          onMouseEnter={() => {
                             if (activeTrip) {
                               setCalendarHover(`${activeTrip.input.from} to ${activeTrip.input.destination} (${activeTrip.input.days} Days): ${activeTrip.input.travelers} Travelers.`);
-                            } 
-                          }} 
-                          onMouseLeave={() => setCalendarHover(null)} 
+                            }
+                          }}
+                          onMouseLeave={() => setCalendarHover(null)}
                           className={`py-3.5 rounded-xl transition-all relative ${bgClass}`}
                         >
                           {day}
