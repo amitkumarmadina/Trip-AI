@@ -14,52 +14,32 @@ Trip AI generates rich, deeply personalized day-by-day travel itineraries in sec
   <tr>
     <td align="center" width="50%">
       <b>🏠 Landing Page — Hero</b><br/><br/>
-      <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=60" width="100%" alt="Landing Hero" style="border-radius:8px"/>
+      <img src="public/screenshots/homepage.png" width="100%" alt="Landing Hero" style="border-radius:8px"/>
     </td>
     <td align="center" width="50%">
-      <b>🎯 Plan Your Trip — Smart Search</b><br/><br/>
-      <img src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600&auto=format&fit=crop&q=60" width="100%" alt="Plan Trip" style="border-radius:8px"/>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <b>🌍 Destinations Marquee</b><br/><br/>
-      <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&auto=format&fit=crop&q=60" width="100%" alt="Destinations" style="border-radius:8px"/>
-    </td>
-    <td align="center" width="50%">
-      <b>🔐 Login & Register</b><br/><br/>
-      <img src="https://images.unsplash.com/photo-1614332287897-cdc485fa562d?w=600&auto=format&fit=crop&q=60" width="100%" alt="Auth Page" style="border-radius:8px"/>
+      <b>🎯 Plan Your Trip — Smart Planner</b><br/><br/>
+      <img src="public/screenshots/Planner.png" width="100%" alt="Plan Trip" style="border-radius:8px"/>
     </td>
   </tr>
   <tr>
     <td align="center" width="50%">
       <b>📊 Member Dashboard — Home</b><br/><br/>
-      <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=600&auto=format&fit=crop&q=60" width="100%" alt="Dashboard" style="border-radius:8px"/>
+      <img src="public/screenshots/dashboard.png" width="100%" alt="Dashboard" style="border-radius:8px"/>
     </td>
     <td align="center" width="50%">
       <b>🗓️ Travel Calendar</b><br/><br/>
-      <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&auto=format&fit=crop&q=60" width="100%" alt="Calendar" style="border-radius:8px"/>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <b>🗂️ Saved Trips Tab</b><br/><br/>
-      <img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&auto=format&fit=crop&q=60" width="100%" alt="Saved Trips" style="border-radius:8px"/>
-    </td>
-    <td align="center" width="50%">
-      <b>⚙️ Account Settings & Profile</b><br/><br/>
-      <img src="https://images.unsplash.com/photo-1614332287897-cdc485fa562d?w=600&auto=format&fit=crop&q=60" width="100%" alt="Settings" style="border-radius:8px"/>
+      <img src="public/screenshots/calender.png" width="100%" alt="Calendar" style="border-radius:8px"/>
     </td>
   </tr>
   <tr>
     <td align="center" colspan="2">
-      <b>🤖 AI Itinerary Viewer + Atlas Chat Concierge</b><br/><br/>
-      <img src="https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=900&auto=format&fit=crop&q=60" width="80%" alt="AI Itinerary" style="border-radius:8px"/>
+      <b>👤 Profile & Account Settings</b><br/><br/>
+      <img src="public/screenshots/profile.png" width="60%" alt="Profile Settings" style="border-radius:8px"/>
     </td>
   </tr>
 </table>
 
-> 📸 *Replace these placeholder images with actual screenshots from `docs/screenshots/` once captured.*
+> 📸 *Real screenshots from the live Trip AI app.*
 
 ---
 
