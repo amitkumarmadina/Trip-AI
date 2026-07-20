@@ -55,58 +55,58 @@
 :root {
   --radius: 1rem;
 
-  /* Midnight + Emerald Theme */
-  --background: #0f172a;
-  --foreground: #f8fafc;
+  /* Custom Premium Dark SaaS Theme Colors */
+  --background: #0F172A;
+  --foreground: #F8FAFC;
 
-  --card: rgba(30, 41, 59, 0.65);
-  --card-foreground: #f8fafc;
+  --card: #1E293B;
+  --card-foreground: #F8FAFC;
 
-  --popover: #1e293b;
-  --popover-foreground: #f8fafc;
+  --popover: #1E293B;
+  --popover-foreground: #F8FAFC;
 
-  --primary: #10b981;
-  --primary-foreground: #0f172a;
+  --primary: #10B981; /* Emerald-500 */
+  --primary-foreground: #0F172A;
 
-  --secondary: #34d399;
-  --secondary-foreground: #0f172a;
+  --secondary: #34D399; /* Emerald-400 */
+  --secondary-foreground: #0F172A;
 
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
+  --muted: #172235; /* Section Background */
+  --muted-foreground: #94A3B8;
 
-  --accent: rgba(245, 158, 11, 0.15);
-  --accent-foreground: #f59e0b;
+  --accent: #F59E0B; /* Amber-500 */
+  --accent-foreground: #0F172A;
 
-  --destructive: #ef4444;
-  --destructive-foreground: #f8fafc;
+  --destructive: #EF4444;
+  --destructive-foreground: #F8FAFC;
 
-  --border: rgba(148, 163, 184, 0.15);
-  --input: rgba(30, 41, 59, 0.45);
-  --ring: #10b981;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.04);
+  --ring: #10B981;
 
   --gradient-hero: linear-gradient(
     135deg,
-    #10b981 0%,
-    #34d399 100%
+    #10B981 0%,
+    #34D399 100%
   );
 
-  --shadow-soft: 0 10px 40px -10px rgba(15, 23, 42, 0.5);
+  --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 15px 50px -15px rgba(16, 185, 129, 0.3);
 
-  --chart-1: #10b981;
-  --chart-2: #34d399;
-  --chart-3: #f59e0b;
-  --chart-4: #6366f1;
-  --chart-5: #38bdf8;
+  --chart-1: #10B981;
+  --chart-2: #3B82F6;
+  --chart-3: #F59E0B;
+  --chart-4: #8B5CF6;
+  --chart-5: #14B8A6;
 
-  --sidebar: #0b0f19;
-  --sidebar-foreground: #f8fafc;
-  --sidebar-primary: #10b981;
-  --sidebar-primary-foreground: #0f172a;
-  --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #f8fafc;
-  --sidebar-border: rgba(148, 163, 184, 0.1);
-  --sidebar-ring: #10b981;
+  --sidebar: #172235;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #10B981;
+  --sidebar-primary-foreground: #0F172A;
+  --sidebar-accent: #1E293B;
+  --sidebar-accent-foreground: #F8FAFC;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #10B981;
 }
 
 @layer base {
@@ -243,3 +243,44 @@
 ::-webkit-scrollbar-thumb:hover {
   background: oklch(0.28 0.04 250);
 }
+
+/* Floating Keyframe Animations for SaaS UI Elements */
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes float-medium {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes float-fast {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: float-medium 6s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: float-fast 5s ease-in-out infinite;
+}
+
