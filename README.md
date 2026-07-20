@@ -1,149 +1,223 @@
-# ✈️ Trip AI
+# <img src="public/logo.png" width="36" alt="Trip AI Logo" style="vertical-align:middle"/> Trip AI
 
-Trip AI is a premium, AI-powered travel concierge and planner. It generates detailed, highly personalized day-by-day travel itineraries in seconds based on your departing location, destination, budget, travel style, interests, accommodation, and transport preferences. 
+> **AI-powered travel concierge & itinerary planner — Plan here, book anywhere.**
 
-Equipped with **Atlas AI**—a real-time conversational chat assistant—you can ask to modify, swap, or refine activities, and watch your itinerary and budget tables update dynamically.
+Trip AI generates rich, deeply personalized day-by-day travel itineraries in seconds powered by Groq (Llama 3) and Google Gemini AI. Built with a premium dark-mode dashboard, real-time AI chat, saved trips, interactive travel calendar, and full user authentication.
 
----
-
-## 📷 UI Showcase & Mockups
-
-Here are some visual showcases of the Trip AI user interface:
-
-### 🌟 Dashboard View
-*(Insert Dashboard screenshot here)*
-<!-- <img src="/path/to/dashboard.png" width="800" alt="Trip AI Dashboard" /> -->
-
-### ✍️ Trip Planner Form
-*(Insert Planner Form screenshot here)*
-<!-- <img src="/path/to/planner-form.png" width="800" alt="Trip AI Trip Planner Form" /> -->
-
-### 💬 Atlas AI Chat Concierge & Itinerary
-*(Insert Chat Concierge screenshot here)*
-<!-- <img src="/path/to/chat-concierge.png" width="800" alt="Atlas AI Chat Concierge" /> -->
+🔗 **Live:** [trip-ai-delta-rouge.vercel.app](https://trip-ai-delta-rouge.vercel.app)
 
 ---
 
-## ⚙️ Getting Started (Local Development)
+## 📷 Screenshots
 
-Follow these steps to clone the repository and run Trip AI on your local machine.
+### 🏠 Landing Page — Hero
+![Landing Hero](docs/screenshots/landing_hero.png)
 
-### Prerequisites
-Make sure you have **Node.js** (v18+) and **npm** installed on your system.
+### 🎯 Plan Your Trip — Smart Search Bar
+![Plan Trip](docs/screenshots/plan_trip.png)
 
-### 1. Clone the Repository
-Clone this repository to your local machine using git:
-```bash
-git clone https://github.com/your-username/trip-ai.git
-cd trip-ai
-```
+### 🌍 Destinations Marquee
+![Destinations](docs/screenshots/destinations.png)
 
-### 2. Install Dependencies
-Install the required packages for both the Vite client and Express server:
-```bash
-npm install
-```
+### 🔐 Login & Register
+![Auth](docs/screenshots/auth.png)
 
-### 3. Setup Environment Variables
-Create a file named `.env` in the root directory of the project and populate it with the following configuration:
-```env
-# Server Port
-PORT=5000
+### 📊 Member Dashboard — Home
+![Dashboard Home](docs/screenshots/dashboard_home.png)
 
-# MongoDB connection URI (using local MongoDB or MongoDB Atlas)
-MONGODB_URI=mongodb://localhost:27017/tripai
+### 🗓️ Travel Calendar
+![Calendar](docs/screenshots/calendar.png)
 
-# JWT authentication secret (a secure random string)
-JWT_SECRET=your_jwt_secret_key_here
+### 🗂️ Saved Trips Tab
+![Saved Trips](docs/screenshots/saved_trips.png)
 
-# Google Gemini API key (for itinerary generation)
-GEMINI_API_KEY=your_gemini_api_key_here
+### ⚙️ Account Settings — Profile Upload
+![Settings](docs/screenshots/settings.png)
 
-# Groq API key (for conversational Atlas AI chat)
-GROQ_API_KEY=your_groq_api_key_here
-```
+### 🤖 AI Itinerary Viewer + Chat Concierge
+![Itinerary](docs/screenshots/itinerary.png)
 
-### 4. Run Development Servers
-To spin up both the **Vite client** (running on `http://localhost:5173`) and the **Express API server** (running on `http://localhost:5000`) concurrently, run:
-```bash
-npm run dev
-```
+> 📸 *Screenshots are captured from the live production build at localhost:5173.*
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-- **🎯 Smart Travel Planner:** Customize origin, destination, budget, group size, trip dates/duration, accommodation styles, travel interests, and transit modes.
-- **🤖 Dual-Engine AI Generation:** Integrates with both **Groq API** (`llama-3.3-70b-versatile`) and **Google Gemini API** (`gemini-1.5-flash`) for rich, detailed markdown itinerary creation with a local fallback generator if keys are absent.
-- **💬 Atlas AI Chat Concierge:** Real-time conversational interface. Ask Atlas AI to *"make the second day cheaper"* or *"swap transit to a bullet train"*, and it will reconstruct the itinerary markdown and update your view automatically.
-- **🔒 Secure Authentication:** User signup, login, and profile fetching backed by **JWT** authentication and **bcrypt** password hashing.
-- **💾 Cloud Sync & Dashboard:** Save travel plans directly to a **MongoDB** database, view your dashboard of saved itineraries, and delete or update them at any time.
-- **📊 Interactive Budgeting:** Automatic markdown budget breakdown tables categorizing spending on accommodation, transportation, meals, activities, and miscellaneous items.
-- **🧳 Packing & Checklist:** Smart packing recommendations tailored to your target climate and location.
+| Feature | Description |
+|---|---|
+| 🎯 **Smart Trip Planner** | Enter origin, destination, dates (dd/mm/yyyy), travellers, budget, interests, transit, and lodging. |
+| 🤖 **Dual AI Engine** | Groq API (Llama-3.3-70B) + Google Gemini 1.5 Flash — with offline fallback generator. |
+| 💬 **Atlas AI Chat** | Conversational chat to refine your itinerary: *"Make Day 2 budget-friendly"*, etc. |
+| 🔒 **JWT Authentication** | Secure user signup, login, and session management with bcrypt password hashing. |
+| 📊 **Member Dashboard** | Premium dark-mode sidebar dashboard with Home, Bookings, Calendar, Documents, Saved Trips, Preferences, Settings, and Help tabs. |
+| 🗓️ **Travel Calendar** | Dynamic monthly calendar that auto-highlights trip date ranges from your saved trips. |
+| 🗂️ **Saved Trips** | Cloud-synced (MongoDB) saved itineraries with local storage fallback. View, delete, and open any saved trip. |
+| 👤 **Profile Management** | Upload profile photo from device or URL, update display name & email. |
+| 🌟 **Destination Marquee** | Animated infinite horizontal scroll showcasing popular global destinations. |
+| 📦 **Packing Checklist** | Smart packing list tailored to climate and destination. |
+| 💱 **Multi-Currency** | Budget in INR, USD, EUR, GBP, AED, and more. |
+| 🌙 **Dark Mode** | Full dark-mode toggle persisted across sessions. |
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Framework:** React 19 & TypeScript
-- **Bundler & Build Tool:** Vite
-- **Routing:** TanStack Router (`@tanstack/react-router`)
-- **State & Data Fetching:** TanStack Query (`@tanstack/react-query`)
-- **Styling & Components:** Tailwind CSS, Radix UI primitives, Lucide Icons, and Sonner notifications. (Streamlined layout with unused Shadcn assets removed).
+| Technology | Purpose |
+|---|---|
+| **React 19 + TypeScript** | Core framework |
+| **Vite 8** | Build tool & dev server |
+| **TanStack Router** | File-based client-side routing |
+| **TanStack Query** | Async data fetching & caching |
+| **Tailwind CSS** | Utility-first styling |
+| **Lucide Icons** | Icon library |
+| **Sonner** | Toast notifications |
+| **Radix UI** | Accessible UI primitives |
 
 ### Backend
-- **Runtime:** Node.js (ES Modules)
-- **Framework:** Express.js
-- **Database:** MongoDB (using Mongoose ODM)
-- **Security:** JSON Web Tokens (JWT), CORS, and BcryptJS
-- **Process Manager:** Nodemon (development)
+| Technology | Purpose |
+|---|---|
+| **Node.js (ES Modules)** | Server runtime |
+| **Express.js** | REST API framework |
+| **MongoDB + Mongoose** | Database & ODM |
+| **JWT + bcryptjs** | Authentication & password hashing |
+| **Nodemon** | Development auto-restart |
+| **Groq SDK** | Llama 3 AI integration |
+| **Google Generative AI** | Gemini AI integration |
 
 ---
 
-## 📂 Streamlined Project Structure
+## ⚙️ Getting Started
 
-```text
-├── server/                     # Backend Source Code
-│   ├── config/                 # Database configuration (db.js)
-│   ├── middleware/             # Authentication & protection middleware (auth.js)
-│   ├── models/                 # Mongoose schemas (User.js, Trip.js)
-│   ├── routes/                 # Express API routes (auth.js, chat.js, itinerary.js)
-│   └── server.js               # Express entry point
-├── src/                        # Frontend React Application
-│   ├── components/             # Reusable UI components & active Shadcn elements
-│   ├── hooks/                  # Custom hooks (useAuth.tsx)
-│   ├── lib/                    # Utils & types (utils.ts, trip-types.ts)
-│   ├── routes/                 # TanStack Router page layouts (__root.tsx, itinerary.tsx, saved.tsx)
-│   ├── main.tsx                # React mount entrypoint
-│   └── styles.css              # Tailwind & Global stylesheet
-├── index.html                  # HTML template & Font configurations
-├── vercel.json                 # Vercel deployment routing configuration
-├── vite.config.ts              # Vite configurations & plugins
-├── tsconfig.json               # TypeScript configurations
-└── package.json                # Project dependencies and run scripts
+### Prerequisites
+- **Node.js** v18+
+- **npm** v9+
+- MongoDB Atlas account (or local MongoDB)
+- Groq API key — [console.groq.com](https://console.groq.com)
+- Google Gemini API key — [aistudio.google.com](https://aistudio.google.com)
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/amitkumarmadina/Trip-AI.git
+cd Trip-AI
+```
+
+### 2. Install Dependencies
+```bash
+npm install
+```
+
+### 3. Setup Environment Variables
+Create a `.env` file in the root directory:
+```env
+# Server Port
+PORT=5000
+
+# MongoDB connection URI
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/tripai
+
+# JWT Secret
+JWT_SECRET=your_secure_jwt_secret_here
+
+# Google Gemini API Key
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Groq API Key
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+### 4. Run Development Servers
+```bash
+npm run dev
+```
+This starts:
+- 🖥️ **Vite Client** → `http://localhost:5173`
+- ⚙️ **Express API** → `http://localhost:5000`
+
+### 5. Build for Production
+```bash
+npm run build
 ```
 
 ---
 
-## 🔌 API Documentation
+## 📂 Project Structure
 
-### Authentication Routes
-- `POST /api/auth/register` — Registers a new user.
-- `POST /api/auth/login` — Authenticates user credentials and returns a JWT token.
-- `GET /api/auth/me` — Fetches current user profile (requires Bearer token).
+```
+Trip-AI/
+├── public/                     # Static assets (logo, favicon)
+├── server/                     # Backend (Express + MongoDB)
+│   ├── config/db.js            # MongoDB connection
+│   ├── middleware/auth.js       # JWT authentication middleware
+│   ├── models/                 # Mongoose schemas (User, Trip)
+│   └── routes/                 # API route handlers (auth, trips, itinerary, chat)
+│   └── server.js               # Express entry point
+├── src/                        # Frontend React Application
+│   ├── components/             # Reusable UI components (Navbar, PlannerForm, etc.)
+│   ├── hooks/useAuth.tsx        # Authentication state hook
+│   ├── lib/                    # Utilities & TypeScript types
+│   └── routes/                 # TanStack pages
+│       ├── index.tsx           # Landing page + Member Dashboard
+│       ├── itinerary.tsx       # AI Itinerary Viewer + Chat
+│       ├── login.tsx           # Login page
+│       ├── register.tsx        # Registration page
+│       └── saved.tsx           # Saved trips page
+├── docs/screenshots/           # README screenshot assets
+├── index.html                  # HTML template
+├── vite.config.ts              # Vite configuration
+├── vercel.json                 # Vercel deployment config
+└── package.json                # Scripts & dependencies
+```
 
-### Itinerary Routes
-- `POST /api/itinerary` — Generates a new travel itinerary using AI models.
-- `GET /api/trips` — Gets all saved trips for the authenticated user.
-- `POST /api/trips` — Saves an itinerary to the user's dashboard.
-- `PUT /api/trips/:id` — Updates a saved itinerary.
-- `DELETE /api/trips/:id` — Deletes a saved itinerary.
+---
 
-### Interactive Chat Routes
-- `POST /api/itinerary/chat` — Relays message history, the current itinerary, and user queries to Atlas AI to conversationally update/refine plans.
+## 🔌 API Reference
+
+### Auth
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/register` | Register new user |
+| `POST` | `/api/auth/login` | Login & receive JWT |
+| `GET` | `/api/auth/me` | Get authenticated user profile |
+
+### Trips
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/trips` | Get all saved trips for user |
+| `POST` | `/api/trips` | Save a new itinerary |
+| `PUT` | `/api/trips/:id` | Update an existing trip |
+| `DELETE` | `/api/trips/:id` | Delete a saved trip |
+
+### AI
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/itinerary` | Generate AI itinerary from trip inputs |
+| `POST` | `/api/itinerary/chat` | Chat with Atlas AI to refine itinerary |
+
+---
+
+## 🚀 Deployment
+
+Trip AI is deployed on **Vercel** (frontend) with API routes proxied via `vercel.json`. The MongoDB instance runs on **MongoDB Atlas**.
+
+```json
+// vercel.json — rewrites API calls to Express backend
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://your-backend.onrender.com/api/$1" }
+  ]
+}
+```
 
 ---
 
 ## 📄 License
-This project is open-source. Feel free to modify and adapt it for your personal use. Happy traveling! ✈️
+
+This project is open-source and free to use for personal projects. Made with ❤️ for curious travelers worldwide. ✈️
+
+---
+
+<p align="center">
+  <img src="public/logo.png" width="48" alt="Trip AI" /><br/>
+  <b>Trip AI</b> — Plan here, book anywhere.
+</p>
