@@ -635,11 +635,11 @@ function LandingPage() {
               { name: "cleartrip", url: "https://upload.wikimedia.org/wikipedia/commons/d/df/Cleartrip_Logo.svg", anim: "animate-float-medium" },
               { name: "Trip.com", url: "https://upload.wikimedia.org/wikipedia/commons/1/1d/Trip.com_logo.svg", anim: "animate-float-fast" },
             ].map((p, idx) => (
-              <img 
+              <img
                 key={idx}
-                src={p.url} 
-                alt={p.name} 
-                className={`h-5 sm:h-5.5 object-contain brightness-0 invert opacity-60 hover:opacity-100 transition-all duration-300 ${p.anim}`} 
+                src={p.url}
+                alt={p.name}
+                className={`h-5 sm:h-5.5 object-contain brightness-0 invert opacity-60 hover:opacity-100 transition-all duration-300 ${p.anim}`}
               />
             ))}
             <span className="text-[11px] text-[#94A3B8] font-semibold lowercase">and more...</span>
@@ -737,7 +737,7 @@ function LandingPage() {
           {[
             { name: "Manali", country: "Himachal Pradesh", price: "6,200", stars: "4.9 (2.5k)", season: "Winter", tag: "Best Seller", img: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=350&q=70" },
             { name: "Goa", country: "India", price: "4,500", stars: "4.8 (1.8k)", season: "Winter", tag: "", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=350&q=70" },
-            { name: "Kerala", country: "God's Own Country", price: "7,500", stars: "4.9 (2.5k)", season: "Monsoon", tag: "Popular", img: "https://images.unsplash.com/photo-1596761301588-915ccaec3e83?auto=format&fit=crop&w=350&q=70" },
+            { name: "Kerala", country: "God's Own Country", price: "7,500", stars: "4.9 (2.5k)", season: "Monsoon", tag: "Popular", img: "https://plus.unsplash.com/premium_photo-1697729438401-fcb4ff66d9a8?w=1200&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8a2VyYWxhfGVufDB8fDB8fHww" },
             { name: "Ladakh", country: "Jammu & Kashmir", price: "9,900", stars: "4.9 (1.6k)", season: "Summer", tag: "", img: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=350&q=70" },
             { name: "Bali", country: "Indonesia", price: "12,500", stars: "4.8 (1.4k)", season: "Dry", tag: "", img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=350&q=70" },
           ].map((d, i) => (
