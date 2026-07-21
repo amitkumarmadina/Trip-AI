@@ -2860,15 +2860,18 @@ function DashboardPage() {
                 <div className="flex flex-col text-left"><span className="text-md font-black text-foreground">Trip<span className="bg-[image:var(--gradient-hero)] bg-clip-text text-transparent">AI</span></span></div>
               </div>
             </div>
-            <nav className="flex-1 space-y-1.5">
+            <nav className="flex-1 space-y-1.5 overflow-y-auto pr-1">
               {[
                 { name: "Home", icon: Home },
                 { name: "Bookings", icon: Plane },
                 { name: "Calendar", icon: Calendar },
                 { name: "Documents", icon: FileText },
                 { name: "Preferences", icon: Sliders },
+                { name: "Saved Trips", icon: Bookmark },
+                { name: "Settings", icon: Settings },
+                { name: "Help & Support", icon: HelpCircle },
               ].map((item) => (
-                <button key={item.name} onClick={() => { setMobileMenuOpen(false); setActiveTab(item.name); }} className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-semibold text-left transition-all ${activeTab === item.name ? "text-primary bg-primary/10 border border-primary/20" : "text-muted-foreground"}`}>
+                <button key={item.name} onClick={() => { setMobileMenuOpen(false); setActiveTab(item.name); }} className={`w-full flex items-center gap-3.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-left transition-all ${activeTab === item.name ? "text-primary bg-primary/10 border border-primary/20" : "text-muted-foreground hover:bg-white/5"}`}>
                   <item.icon className="size-4" />{item.name}
                 </button>
               ))}
