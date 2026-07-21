@@ -353,16 +353,16 @@ function ItineraryPage() {
           <h1 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">
             {trip.input.from} → {trip.input.destination || "AI-suggested destination"}
           </h1>
-          <div className="mt-6 grid gap-4 grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {summary!.map(({ icon: Icon, label, value }) => (
               <div
                 key={label}
                 className="rounded-2xl bg-white/10 p-4 border border-white/5 backdrop-blur-md"
               >
-                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white/70">
+                <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-white/70">
                   <Icon className="size-3.5 text-white/80" /> {label}
                 </div>
-                <div className="mt-1.5 truncate text-sm font-bold">{value}</div>
+                <div className="mt-1 text-xs sm:text-sm font-bold break-words">{value}</div>
               </div>
             ))}
           </div>
@@ -376,7 +376,7 @@ function ItineraryPage() {
             <div className="flex border-b border-white/5 pb-px print:hidden">
               <button
                 onClick={() => setActiveTab("itinerary")}
-                className={`pb-3 text-sm font-bold tracking-tight border-b-2 px-1.5 transition-all duration-300 ${
+                className={`pb-3 text-xs sm:text-sm font-bold tracking-tight border-b-2 px-1.5 transition-all duration-300 ${
                   activeTab === "itinerary"
                     ? "border-primary text-foreground font-black"
                     : "border-transparent text-muted-foreground hover:text-foreground"
@@ -386,13 +386,13 @@ function ItineraryPage() {
               </button>
               <button
                 onClick={() => setActiveTab("booking")}
-                className={`ml-6 pb-3 text-sm font-bold tracking-tight border-b-2 px-1.5 transition-all duration-300 flex items-center gap-1.5 ${
+                className={`ml-4 sm:ml-6 pb-3 text-xs sm:text-sm font-bold tracking-tight border-b-2 px-1.5 transition-all duration-300 flex items-center gap-1.5 ${
                   activeTab === "booking"
                     ? "border-primary text-foreground font-black"
                     : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Compass className="size-4 text-primary" /> Book Anywhere Hub
+                <Compass className="size-3.5 sm:size-4 text-primary" /> Book Anywhere Hub
               </button>
             </div>
 
@@ -436,7 +436,7 @@ function ItineraryPage() {
                 </div>
 
                 {/* Content markdown paper */}
-                <article className="prose prose-invert prose-indigo mt-6 max-w-none rounded-3xl border border-white/5 bg-card/45 p-6 sm:p-10 shadow-2xl backdrop-blur-xl prose-headings:tracking-tight prose-h2:mt-8 prose-h2:border-b prose-h2:border-white/5 prose-h2:pb-3 prose-a:text-primary prose-table:text-sm prose-th:text-muted-foreground prose-td:text-foreground/90">
+                <article className="prose prose-invert prose-indigo mt-6 max-w-none rounded-3xl border border-white/5 bg-card/45 p-4 sm:p-10 shadow-2xl backdrop-blur-xl prose-headings:tracking-tight prose-h2:mt-8 prose-h2:border-b prose-h2:border-white/5 prose-h2:pb-3 prose-a:text-primary prose-table:block prose-table:w-full prose-table:overflow-x-auto prose-table:whitespace-nowrap prose-table:text-sm prose-th:text-muted-foreground prose-td:text-foreground/90">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{trip.itinerary}</ReactMarkdown>
                 </article>
               </div>
@@ -592,15 +592,84 @@ function BookingHub({ trip }: { trip: SavedTrip }) {
       </div>
 
       {/* Pricing Comparison Table Matrix */}
-      <div className="glass-panel rounded-3xl p-6 sm:p-8 border-white/5 shadow-xl">
+      <div className="glass-panel rounded-3xl p-5 sm:p-8 border-white/5 shadow-xl">
         <h2 className="text-xl font-bold tracking-tight mb-4 font-black">
           Wise Choice Price Matrix
         </h2>
         <p className="text-xs text-muted-foreground mb-4 font-semibold">
           Estimated channels pricing comparison (calculated in {currency}):
         </p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm border-collapse">
+
+        {/* Mobile View: Stacked Cards for Matrix */}
+        <div className="space-y-4 sm:hidden">
+          {[
+            {
+              category: "Flights",
+              ota: `${(estFlight * 1.08).toLocaleString()} ${currency}`,
+              direct: `${estFlight.toLocaleString()} ${currency}`,
+              best: `${(estFlight * 0.96).toLocaleString()} ${currency}`,
+              recommendation: "Book Direct (Save 12%)",
+              recommendationColor: "text-emerald-400",
+            },
+            {
+              category: "Hotels & Stays",
+              ota: `${estHotel.toLocaleString()} ${currency}`,
+              direct: `${(estHotel * 1.05).toLocaleString()} ${currency}`,
+              best: `${(estHotel * 0.92).toLocaleString()} ${currency}`,
+              recommendation: "Use Booking.com / Agoda",
+              recommendationColor: "text-emerald-400",
+            },
+            {
+              category: "Activities",
+              ota: `${(estActivities * 1.1).toLocaleString()} ${currency}`,
+              direct: `${estActivities.toLocaleString()} ${currency}`,
+              best: `${(estActivities * 0.95).toLocaleString()} ${currency}`,
+              recommendation: "Compare Viator & GYG",
+              recommendationColor: "text-emerald-400",
+            },
+            {
+              category: "Total Estimates",
+              ota: `${(estFlight * 1.08 + estHotel + estActivities * 1.1).toLocaleString()} ${currency}`,
+              direct: `${(estFlight + estHotel * 1.05 + estActivities).toLocaleString()} ${currency}`,
+              best: `${(estFlight * 0.96 + estHotel * 0.92 + estActivities * 0.95).toLocaleString()} ${currency}`,
+              recommendation: "Expected Savings: ~10%",
+              recommendationColor: "text-emerald-400 font-black",
+              isTotal: true,
+            },
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              className={`rounded-2xl border p-4 bg-white/[0.02] ${
+                item.isTotal ? "border-primary/20 bg-primary/[0.02]" : "border-white/5"
+              }`}
+            >
+              <div className="flex justify-between items-center border-b border-white/5 pb-2 mb-3">
+                <h4 className="font-bold text-sm text-foreground">{item.category}</h4>
+                <span className={`text-[10px] font-bold ${item.recommendationColor}`}>
+                  {item.recommendation}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="bg-white/5 rounded-xl p-2">
+                  <div className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">OTA</div>
+                  <div className="text-[11px] font-semibold mt-1 text-foreground/80">{item.ota}</div>
+                </div>
+                <div className="bg-white/5 rounded-xl p-2">
+                  <div className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">Direct</div>
+                  <div className="text-[11px] font-semibold mt-1 text-foreground/80">{item.direct}</div>
+                </div>
+                <div className="bg-primary/10 border border-primary/20 rounded-xl p-2">
+                  <div className="text-[9px] text-primary uppercase font-bold tracking-wider">AI Best</div>
+                  <div className="text-[11px] font-black mt-1 text-primary">{item.best}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop View: Full Table */}
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="w-full text-left text-sm border-collapse min-w-[580px]">
             <thead>
               <tr className="border-b border-white/5 text-muted-foreground text-xs uppercase tracking-wider font-bold">
                 <th className="py-3 pr-4">Category</th>
@@ -680,7 +749,7 @@ function BookingHub({ trip }: { trip: SavedTrip }) {
             href={searchSkyscanner}
             target="_blank"
             rel="noopener noreferrer"
-            className="glass-panel glass-panel-hover rounded-2xl p-5 border border-white/5 flex flex-col justify-between h-40 group transition-all duration-300"
+            className="glass-panel glass-panel-hover rounded-2xl p-5 border border-white/5 flex flex-col justify-between min-h-[10rem] h-auto group transition-all duration-300"
           >
             <div>
               <div className="flex items-center justify-between">
@@ -708,7 +777,7 @@ function BookingHub({ trip }: { trip: SavedTrip }) {
             href={searchGoogleFlights}
             target="_blank"
             rel="noopener noreferrer"
-            className="glass-panel glass-panel-hover rounded-2xl p-5 border border-white/5 flex flex-col justify-between h-40 group transition-all duration-300"
+            className="glass-panel glass-panel-hover rounded-2xl p-5 border border-white/5 flex flex-col justify-between min-h-[10rem] h-auto group transition-all duration-300"
           >
             <div>
               <div className="flex items-center justify-between">
@@ -736,7 +805,7 @@ function BookingHub({ trip }: { trip: SavedTrip }) {
             href={searchBooking}
             target="_blank"
             rel="noopener noreferrer"
-            className="glass-panel glass-panel-hover rounded-2xl p-5 border border-white/5 flex flex-col justify-between h-40 group transition-all duration-300"
+            className="glass-panel glass-panel-hover rounded-2xl p-5 border border-white/5 flex flex-col justify-between min-h-[10rem] h-auto group transition-all duration-300"
           >
             <div>
               <div className="flex items-center justify-between">
@@ -764,7 +833,7 @@ function BookingHub({ trip }: { trip: SavedTrip }) {
             href={searchAirbnb}
             target="_blank"
             rel="noopener noreferrer"
-            className="glass-panel glass-panel-hover rounded-2xl p-5 border border-white/5 flex flex-col justify-between h-40 group transition-all duration-300"
+            className="glass-panel glass-panel-hover rounded-2xl p-5 border border-white/5 flex flex-col justify-between min-h-[10rem] h-auto group transition-all duration-300"
           >
             <div>
               <div className="flex items-center justify-between">
@@ -792,7 +861,7 @@ function BookingHub({ trip }: { trip: SavedTrip }) {
             href={searchViator}
             target="_blank"
             rel="noopener noreferrer"
-            className="glass-panel glass-panel-hover rounded-2xl p-5 border border-white/5 flex flex-col justify-between h-40 group transition-all duration-300"
+            className="glass-panel glass-panel-hover rounded-2xl p-5 border border-white/5 flex flex-col justify-between min-h-[10rem] h-auto group transition-all duration-300"
           >
             <div>
               <div className="flex items-center justify-between">
@@ -820,7 +889,7 @@ function BookingHub({ trip }: { trip: SavedTrip }) {
             href={searchGetYourGuide}
             target="_blank"
             rel="noopener noreferrer"
-            className="glass-panel glass-panel-hover rounded-2xl p-5 border border-white/5 flex flex-col justify-between h-40 group transition-all duration-300"
+            className="glass-panel glass-panel-hover rounded-2xl p-5 border border-white/5 flex flex-col justify-between min-h-[10rem] h-auto group transition-all duration-300"
           >
             <div>
               <div className="flex items-center justify-between">
