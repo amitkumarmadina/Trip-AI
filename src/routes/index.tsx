@@ -1331,6 +1331,19 @@ function DashboardPage() {
   }, [token]);
 
   useEffect(() => {
+    if (savedTrips && savedTrips.length > 0) {
+      // Automatically adjust the calendar month view to focus on the latest planned/saved trip
+      const latestTrip = savedTrips[savedTrips.length - 1];
+      if (latestTrip && latestTrip.input.startDate) {
+        const parts = latestTrip.input.startDate.split("-");
+        if (parts.length >= 2) {
+          setCalendarMonth(`${parts[0]}-${parts[1]}`);
+        }
+      }
+    }
+  }, [savedTrips.length]);
+
+  useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
@@ -1784,7 +1797,7 @@ function DashboardPage() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-40 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#080912]/80 backdrop-blur-xl shrink-0 select-none">
+        <header className="sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-white/5 bg-[#080912]/80 backdrop-blur-xl shrink-0 select-none">
           <div className="flex items-center gap-4 lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(true)}
@@ -1817,7 +1830,7 @@ function DashboardPage() {
               </span>
             </div>
           ) : (
-            <div className="text-left font-bold text-sm text-muted-foreground flex items-center gap-2">
+            <div className="text-left font-bold text-sm text-muted-foreground hidden lg:flex items-center gap-2">
               <span>Dashboard</span>
               <ChevronRight className="size-3.5" />
               <span className="text-foreground font-extrabold">{activeTab}</span>
@@ -1844,9 +1857,9 @@ function DashboardPage() {
                 });
                 setIsModalOpen(true);
               }}
-              className="flex items-center gap-2 rounded-xl bg-[image:var(--gradient-hero)] text-white text-xs font-black px-4 py-2.5 shadow-glow hover:brightness-110 transition-all duration-300 shrink-0 cursor-pointer"
+              className="flex items-center gap-2 rounded-xl bg-[image:var(--gradient-hero)] text-white text-xs font-black p-2.5 sm:px-4 sm:py-2.5 shadow-glow hover:brightness-110 transition-all duration-300 shrink-0 cursor-pointer"
             >
-              <Plus className="size-3.5" /> Plan New Trip
+              <Plus className="size-3.5" /> <span className="hidden sm:inline">Plan New Trip</span>
             </button>
 
             <button
