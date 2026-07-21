@@ -1911,7 +1911,7 @@ function DashboardPage() {
                 <div className="absolute inset-0 bg-black/25 pointer-events-none" />
 
                 <div className="relative z-10 w-full max-w-4xl space-y-6">
-                  <div>
+                  <div className="hidden sm:block">
                     <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight drop-shadow-md">
                       Where to next?
                     </h1>
