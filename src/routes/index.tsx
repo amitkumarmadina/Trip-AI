@@ -2639,7 +2639,7 @@ function DashboardPage() {
                 <h2 className="text-xl font-black text-foreground font-outfit">Account Settings</h2>
                 <p className="text-xs text-muted-foreground mt-1">Configure Display details and upload profile photos.</p>
               </div>
-              <form onSubmit={(e) => { e.preventDefault(); localStorage.setItem("tripai:profile_pic", profilePic); toast.success("Profile parameters updated!"); }} className="rounded-3xl border border-white/5 bg-[#0a0c16]/50 p-6 space-y-4">
+              <form onSubmit={(e) => { e.preventDefault(); localStorage.setItem("tripai:profile_pic", profilePic); window.dispatchEvent(new Event("tripai:profile_pic_updated")); toast.success("Profile parameters updated!"); }} className="rounded-3xl border border-white/5 bg-[#0a0c16]/50 p-6 space-y-4">
                 <h3 className="text-xs font-black text-foreground uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-2.5 mb-2.5"><UserCheck className="size-4 text-primary" /> Profile Details</h3>
                 <div className="flex flex-col md:flex-row gap-6 items-center border-b border-white/5 pb-4 mb-4">
                   <div className="shrink-0 overflow-hidden rounded-full border border-primary/30 size-20 bg-primary/10 flex items-center justify-center text-primary select-none text-2xl font-black font-outfit">
@@ -2669,7 +2669,7 @@ function DashboardPage() {
                       {profilePic && (
                         <button
                           type="button"
-                          onClick={() => setProfilePic("")}
+                          onClick={() => { setProfilePic(""); localStorage.removeItem("tripai:profile_pic"); window.dispatchEvent(new Event("tripai:profile_pic_updated")); }}
                           className="rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold px-4 py-2 cursor-pointer transition-colors text-muted-foreground hover:text-foreground"
                         >
                           Remove Photo
