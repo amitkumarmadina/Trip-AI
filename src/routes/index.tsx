@@ -1797,7 +1797,7 @@ function DashboardPage() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-white/5 bg-[#080912]/80 backdrop-blur-xl shrink-0 select-none">
+        <header className="relative z-40 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-white/5 bg-[#080912]/80 backdrop-blur-xl shrink-0 select-none">
           <div className="flex items-center gap-4 lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(true)}
